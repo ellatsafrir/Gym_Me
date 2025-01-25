@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace Gym_Me
 {
-    public class GymData
+    public class ExcersizeData
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -17,11 +17,11 @@ namespace Gym_Me
     }
     public class ExcersizeList
     {
-        public List<GymData> excersizes { get; set; }
+        public List<ExcersizeData> excersizes { get; set; }
 
         public ExcersizeList()
         {
-            this.excersizes = new List<GymData>();
+            this.excersizes = new List<ExcersizeData>();
         }
         public void LoadCsvFromAssets(Context context)
         {
@@ -35,8 +35,8 @@ namespace Gym_Me
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
                     // Automatically maps CSV columns to the GymData class properties
-                    var records = csv.GetRecords<GymData>();
-                    this.excersizes = new List<GymData>(records);
+                    var records = csv.GetRecords<ExcersizeData>();
+                    this.excersizes = new List<ExcersizeData>(records);
                 }
             }
             catch (Exception ex)

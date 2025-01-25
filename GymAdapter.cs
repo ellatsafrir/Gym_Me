@@ -4,18 +4,18 @@ using Android.Widget;
 using Gym_Me;
 using System.Collections.Generic;
 
-public class GymAdapter : BaseAdapter<GymData>
+public class GymAdapter : BaseAdapter<ExcersizeData>
 {
-    private readonly List<GymData> _excersizes;
+    private readonly List<ExcersizeData> _excersizes;
     private readonly Activity _context;
 
-    public GymAdapter(Activity context, List<GymData> excersizes) : base()
+    public GymAdapter(Activity context, List<ExcersizeData> excersizes) : base()
     {
         _context = context;
         _excersizes = excersizes;
     }
 
-    public override GymData this[int position] => _excersizes[position];
+    public override ExcersizeData this[int position] => _excersizes[position];
 
     public override int Count => _excersizes.Count;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gym_Me
 {
-    public class Exercise : ExerciseBase
+    public class Exercise : SetBase
     {
         public int Id { get; set; }
         public string Description { get; set; }
