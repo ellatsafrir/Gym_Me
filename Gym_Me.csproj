@@ -16,7 +16,9 @@
     <None Remove="Resources\layout\activity_add_workout.xml" />
     <None Remove="Resources\layout\activity_workout_history.xml" />
     <None Remove="Resources\layout\dialog_edit_workout.xml" />
+    <None Remove="Resources\layout\item_gym.xml" />
     <None Remove="Resources\layout\Login.xml" />
+    <None Remove="Resources\layout\See.xml" />
     <None Remove="Resources\layout\SignUp.xml" />
     <None Remove="Resources\layout\workout_history_item.xml" />
     <None Remove="Resources\layout\workout_item.xml" />

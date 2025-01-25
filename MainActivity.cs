@@ -9,28 +9,18 @@ using System.Runtime.CompilerServices;
 
 namespace Gym_Me
 {
-    [Activity(Label = "MainActivity", MainLauncher = true)]
+    [Activity(Label = "MainActivity")]
     public class MainActivity : Activity
     {
         private ListView workoutListView;
         private List<Workout> workoutList;
         private DatabaseHelper dbHelper;
         private Button history;
-        public ExcersizeList excersizeList;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-
-            excersizeList = new ExcersizeList();
-            excersizeList.LoadCsvFromAssets(this);
-
-            foreach (GymData data in excersizeList.excersizes)
-            {
-                Console.WriteLine(data);
-                Log.Debug("CSV", $"[csv]: {data}");
-            }
 
             // Check if the user is logged in
             if (!IsUserLoggedIn())
