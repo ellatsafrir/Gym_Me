@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <!-- Workout Name -->
+    <TextView
+        android:id="@+id/workoutNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Workout Name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp" />
+
+    <!-- Exercises (Initially hidden) -->
+    <LinearLayout
+        android:id="@+id/exercisesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/exercisesTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Exercises will appear here."
+            android:textSize="16sp" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/workoutDateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#777" />
+
+</LinearLayout>
