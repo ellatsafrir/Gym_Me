@@ -1,3 +1,4 @@
+using Android.Content;
 using Android.Widget;
 
 namespace Gym_Me;
@@ -28,7 +29,18 @@ public class SeeActivity : Activity
         _listView.ItemClick += (sender, e) =>
         {
             var clickedItem = _excersizeList.excersizes[e.Position];
-            Toast.MakeText(this, $"Clicked: {clickedItem.Name}", ToastLength.Short).Show();
+            string videoLink = clickedItem.VideoLink;
+
+            if (!string.IsNullOrEmpty(videoLink))
+            {
+                // Open the YouTube link using an Intent
+                var intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse(videoLink));
+                StartActivity(intent);
+            }
+            else
+            {
+                Toast.MakeText(this, "No video link available", ToastLength.Short).Show();
+            }
         };
     }
 }
