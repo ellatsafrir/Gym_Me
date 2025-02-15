@@ -40,7 +40,7 @@ namespace Gym_Me
             LinearLayout exercisesLayout = view.FindViewById<LinearLayout>(Resource.Id.exercisesLayout);
             TextView exercisesTextView = view.FindViewById<TextView>(Resource.Id.exercisesTextView);
 
-            workoutNameTextView.Text = workout.Name;
+            workoutNameTextView.Text = workout.Id;
             exercisesTextView.Text = string.Join(", ", workout.Exercises);
 
             // Set visibility toggle
@@ -93,7 +93,7 @@ namespace Gym_Me
             // Confirm deletion dialog
             new AlertDialog.Builder(context)
                 .SetTitle("Delete Workout")
-                .SetMessage($"Are you sure you want to delete {workout.Name}?")
+                .SetMessage($"Are you sure you want to delete {workout.Id}?")
                 .SetPositiveButton("Yes", (sender, e) =>
                 {
                     DeleteWorkoutFromDatabase(workout);
@@ -105,13 +105,13 @@ namespace Gym_Me
 
         private void DeleteWorkoutFromDatabase(Workout workout)
         {
-            bool isDeleted = dbHelper.DeleteWorkout(workout.Name); // Ensure this method exists in DatabaseHelper
+            bool isDeleted = dbHelper.DeleteWorkout(workout.Id); // Ensure this method exists in DatabaseHelper
 
             if (isDeleted)
             {
                 workouts.Remove(workout); // Remove workout from the list
                 NotifyDataSetChanged(); // Refresh the adapter to update the ListView
-                Toast.MakeText(context, $"{workout.Name} deleted.", ToastLength.Short).Show();
+                Toast.MakeText(context, $"{workout.Id} deleted.", ToastLength.Short).Show();
             }
             else
             {
@@ -126,7 +126,7 @@ namespace Gym_Me
             EditText workoutNameEditText = dialogView.FindViewById<EditText>(Resource.Id.workoutNameEditText);
             EditText exercisesEditText = dialogView.FindViewById<EditText>(Resource.Id.exercisesEditText);
 
-            workoutNameEditText.Text = workout.Name;
+            workoutNameEditText.Text = workout.Id;
             exercisesEditText.Text = string.Join(", ", workout.Exercises);
 
             new AlertDialog.Builder(context)
@@ -143,9 +143,9 @@ namespace Gym_Me
                         return;
                     }
 
-                    workout.Name = updatedWorkoutName;
-                    workout.Exercises = new List<string>(updatedExercises.Split(new[] { ", " }, StringSplitOptions.None));
-                    UpdateWorkoutInDatabase(workout);
+                    workout.Id = updatedWorkoutName;
+                    //workout.Exercises = new List<string>(updatedExercises.Split(new[] { ", " }, StringSplitOptions.None));
+                    //UpdateWorkoutInDatabase(workout);
                 })
                 .SetNegativeButton("Cancel", (sender, e) => { /* Do nothing */ })
                 .Create()
@@ -153,21 +153,21 @@ namespace Gym_Me
            
         }
 
-        private void UpdateWorkoutInDatabase(Workout workout)
-        {
-            bool isUpdated = dbHelper.UpdateWorkout(workout);
+        //private void UpdateWorkoutInDatabase(Workout workout)
+        //{
+        //    bool isUpdated = dbHelper.UpdateWorkout(workout);
 
-            if (isUpdated)
-            {
-                NotifyDataSetChanged(); // Refresh the ListView
-                Toast.MakeText(context, "Workout updated successfully.", ToastLength.Short).Show();
+        //    if (isUpdated)
+        //    {
+        //        NotifyDataSetChanged(); // Refresh the ListView
+        //        Toast.MakeText(context, "Workout updated successfully.", ToastLength.Short).Show();
               
-            }
-            else
-            {
-                Toast.MakeText(context, "Failed to update workout.", ToastLength.Short).Show();
-            }
-        }
+        //    }
+        //    else
+        //    {
+        //        Toast.MakeText(context, "Failed to update workout.", ToastLength.Short).Show();
+        //    }
+        //}
 
 
 
@@ -185,8 +185,8 @@ namespace Gym_Me
                 var exercises = dbHelper.GetExercisesForWorkout(workoutName);
                 workouts.Add(new Workout
                 {
-                    Name = workoutName,
-                    Exercises = exercises
+                    //Name = workoutName,
+                    //Exercises = exercises
                 });
             }
         }

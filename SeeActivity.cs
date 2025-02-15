@@ -3,7 +3,7 @@ using Android.Widget;
 
 namespace Gym_Me;
 
-[Activity(Label = "SeeActivity", MainLauncher = true)]
+[Activity(Label = "SeeActivity")]
 public class SeeActivity : Activity
 {
     private ListView _listView;

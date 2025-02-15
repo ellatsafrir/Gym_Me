@@ -47,8 +47,8 @@ namespace Gym_Me
                 var exercises = dbHelper.GetExercisesForWorkout(workoutName); // Get exercises for each workout
                 workoutListWithDetails.Add(new Workout
                 {
-                    Name = workoutName,
-                    Exercises = exercises
+                    //Name = workoutName,
+                    //Exercises = exercises
                 });
             }
 

@@ -25,23 +25,38 @@
             android:inputType="text"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Exercises Input (Comma separated) -->
+        <!-- Add Set Button -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enter Exercises (comma separated)"
+            android:text="Add Sets"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"/>
 
-        <EditText
-            android:id="@+id/exercisesEditText"
+        <Button
+            android:id="@+id/addSetButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="e.g. Push-up, Squat, Bench Press"
-            android:inputType="text"
+            android:text="Add Set"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Date Picker for Day of Workout (Button to open DatePickerDialog) -->
+        <!-- ListView to Display Sets -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Added Sets"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <ListView
+            android:id="@+id/setsListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Date Picker for Day of Workout -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -109,54 +109,54 @@ namespace Gym_Me
 
         
 
-        public void UpdateWorkout(string originalWorkoutName, string newWorkoutName, List<string> exercises, DateTime date)
-        {
-            using (var db = this.WritableDatabase)
-            {
-                // Update the workout in the database
-                ContentValues values = new ContentValues();
-                values.Put("workout_name", newWorkoutName);
-                values.Put("date", date.ToString("yyyy-MM-dd"));
+        //public void UpdateWorkout(string originalWorkoutName, string newWorkoutName, List<string> exercises, DateTime date)
+        //{
+        //    using (var db = this.WritableDatabase)
+        //    {
+        //        // Update the workout in the database
+        //        ContentValues values = new ContentValues();
+        //        values.Put("workout_name", newWorkoutName);
+        //        values.Put("date", date.ToString("yyyy-MM-dd"));
 
-                // Update exercises
-                DeleteExercisesForWorkout(originalWorkoutName, db); // Delete existing exercises
-                foreach (var exercise in exercises)
-                {
-                    SaveExercise(newWorkoutName, exercise, db); // Save new exercises
-                }
+        //        // Update exercises
+        //        DeleteExercisesForWorkout(originalWorkoutName, db); // Delete existing exercises
+        //        foreach (var exercise in exercises)
+        //        {
+        //            SaveExercise(newWorkoutName, exercise, db); // Save new exercises
+        //        }
 
-                db.Update("workouts", values, "workout_name = ?", new string[] { originalWorkoutName });
-            }
-        }
+        //        db.Update("workouts", values, "workout_name = ?", new string[] { originalWorkoutName });
+        //    }
+        //}
 
-        public bool UpdateWorkout(Workout workout)
-        {
-            using (var db = WritableDatabase)
-            {
-                db.BeginTransaction();  // Begin a transaction
-                try
-                {
-                    // Step 1: Delete the existing workout and its exercises
-                    db.ExecSQL($"DELETE FROM {TableExercises} WHERE {ColumnWorkoutIdForExercise} = ?", new Java.Lang.Object[] { new Java.Lang.String(workout.Id.ToString()) });
-                    db.ExecSQL($"DELETE FROM {TableWorkouts} WHERE {ColumnWorkoutId} = ?", new Java.Lang.Object[] { new Java.Lang.String(workout.Id.ToString()) });
+        //public bool UpdateWorkout(Workout workout)
+        //{
+        //    using (var db = WritableDatabase)
+        //    {
+        //        db.BeginTransaction();  // Begin a transaction
+        //        try
+        //        {
+        //            // Step 1: Delete the existing workout and its exercises
+        //            db.ExecSQL($"DELETE FROM {TableExercises} WHERE {ColumnWorkoutIdForExercise} = ?", new Java.Lang.Object[] { new Java.Lang.String(workout.Id.ToString()) });
+        //            db.ExecSQL($"DELETE FROM {TableWorkouts} WHERE {ColumnWorkoutId} = ?", new Java.Lang.Object[] { new Java.Lang.String(workout.Id.ToString()) });
 
-                    // Step 2: Insert the updated workout and its exercises
-                    SaveWorkout(workout.Name, workout.Exercises, workout.Date, db); // No need to pass the database as a parameter if it's already available in the method
+        //            // Step 2: Insert the updated workout and its exercises
+        //            SaveWorkout(workout.Id, workout.Exercises, workout.Date, db); // No need to pass the database as a parameter if it's already available in the method
 
-                    db.SetTransactionSuccessful(); // Commit the transaction if everything is successful
-                    return true;
-                }
-                catch (Exception ex)
-                {
+        //            db.SetTransactionSuccessful(); // Commit the transaction if everything is successful
+        //            return true;
+        //        }
+        //        catch (Exception ex)
+        //        {
                   
-                    throw ex; // Re-throw the exception after rolling back
-                }
-                finally
-                {
-                    db.EndTransaction(); // Ensure the transaction is ended, whether success or failure
-                }
-            }
-        }
+        //            throw ex; // Re-throw the exception after rolling back
+        //        }
+        //        finally
+        //        {
+        //            db.EndTransaction(); // Ensure the transaction is ended, whether success or failure
+        //        }
+        //    }
+        //}
 
         // Inside DatabaseHelper.cs
         public void DeleteExercisesForWorkout(string workoutName, SQLiteDatabase db)
@@ -170,17 +170,17 @@ namespace Gym_Me
 
 
         // Inside DatabaseHelper.cs
-        public void SaveExercise(string workoutName, string exercise, SQLiteDatabase db)
-        {
-            var workoutId = GetWorkoutIdByName(workoutName, db);
-            if (workoutId == -1) return; // No such workout
+        //public void SaveExercise(string workoutName, string exercise, SQLiteDatabase db)
+        //{
+        //    var workoutId = GetWorkoutIdByName(workoutName, db);
+        //    if (workoutId == -1) return; // No such workout
 
-            ContentValues values = new ContentValues();
-            values.Put(ColumnWorkoutIdForExercise, workoutId);
-            values.Put(ColumnExerciseName, exercise);
+        //    ContentValues values = new ContentValues();
+        //    values.Put(ColumnWorkoutIdForExercise, workoutId);
+        //    values.Put(ColumnExerciseName, exercise);
 
-            db.Insert(TableExercises, null, values);  // Inserting exercise into "Exercises" table
-        }
+        //    db.Insert(TableExercises, null, values);  // Inserting exercise into "Exercises" table
+        //}
 
         private long GetWorkoutIdByName(string workoutName, SQLiteDatabase db)
         {

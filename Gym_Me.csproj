@@ -13,6 +13,7 @@
     <None Remove="Assets\excersize.csv" />
     <None Remove="Resources\drawable\circle_background.xml" />
     <None Remove="Resources\drawable\edit_text_background.xml" />
+    <None Remove="Resources\layout\activity_add_set.xml" />
     <None Remove="Resources\layout\activity_add_workout.xml" />
     <None Remove="Resources\layout\activity_workout_history.xml" />
     <None Remove="Resources\layout\dialog_edit_workout.xml" />
@@ -26,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
   </ItemGroup>
   

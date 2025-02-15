@@ -4,6 +4,7 @@ using System.Globalization;
 
 namespace Gym_Me
 {
+    [Serializable]
     public class ExcersizeData
     {
         public string Name { get; set; }

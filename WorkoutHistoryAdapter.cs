@@ -34,7 +34,7 @@ namespace Gym_Me
             var workoutDateTextView = view.FindViewById<TextView>(Resource.Id.workoutDateTextView);
             var exercisesTextView = view.FindViewById<TextView>(Resource.Id.exercisesTextView);
 
-            workoutNameTextView.Text = workout.Name;
+            workoutNameTextView.Text = workout.Id;
             workoutDateTextView.Text = $"Date: {workout.Date.ToString("MMMM dd, yyyy")}";
             exercisesTextView.Text = $"Exercises: {string.Join(", ", workout.Exercises)}";
 
