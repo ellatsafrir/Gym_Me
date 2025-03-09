@@ -9,34 +9,43 @@ namespace Gym_Me
     public class DatabaseHelper : SQLiteOpenHelper
     {
         private const string DatabaseName = "GymMe.db";
-        private const int DatabaseVersion = 1;
+        private const int DatabaseVersion = 2;
 
         // Table and Column names
         private const string TableUsers = "Users";
-        private const string ColumnId = "Id";
+        private const string ColumnUserId = "Id";
         private const string ColumnEmail = "Email";
         private const string ColumnPassword = "Password";
         private const string ColumnName = "Name";
+
         private const string TableWorkouts = "Workouts";
         private const string ColumnWorkoutId = "Id";
         private const string ColumnWorkoutName = "Name";
         private const string ColumnWorkoutDate = "Date";
+
         private const string TableExercises = "Exercises";
         private const string ColumnExerciseId = "Id";
-        private const string ColumnWorkoutIdForExercise = "WorkoutId";
         private const string ColumnExerciseName = "Name";
+
+        private const string TableExerciseSets = "ExerciseSets";
+        private const string ColumnExerciseSetId = "Id";
+        private const string ColumnSetWorkoutId = "WorkoutId";
+        private const string ColumnSetExerciseId = "ExerciseId";
+        private const string ColumnRepetitions = "Repetitions";
+        private const string ColumnWeight = "Weight";
+        private const string ColumnRestTime = "RestTime";
 
         public DatabaseHelper(Context context)
             : base(context, DatabaseName, null, DatabaseVersion)
         {
         }
 
-        // Called when the database is created
         public override void OnCreate(SQLiteDatabase db)
         {
+            Log.Debug("DatabaseHelper", "Creating tables...");
             string createUsersTable = $@"
                 CREATE TABLE {TableUsers} (
-                    {ColumnId} INTEGER PRIMARY KEY AUTOINCREMENT,
+                    {ColumnUserId} INTEGER PRIMARY KEY AUTOINCREMENT,
                     {ColumnEmail} TEXT NOT NULL UNIQUE,
                     {ColumnPassword} TEXT NOT NULL,
                     {ColumnName} TEXT NOT NULL
@@ -52,27 +61,42 @@ namespace Gym_Me
             string createExercisesTable = $@"
                 CREATE TABLE {TableExercises} (
                     {ColumnExerciseId} INTEGER PRIMARY KEY AUTOINCREMENT,
-                    {ColumnWorkoutIdForExercise} INTEGER NOT NULL,
-                    {ColumnExerciseName} TEXT NOT NULL,
-                    FOREIGN KEY ({ColumnWorkoutIdForExercise}) REFERENCES {TableWorkouts}({ColumnWorkoutId})
+                    {ColumnExerciseName} TEXT NOT NULL
+                );";
+
+            string createExerciseSetsTable = $@"
+                CREATE TABLE {TableExerciseSets} (
+                    {ColumnExerciseSetId} INTEGER PRIMARY KEY AUTOINCREMENT,
+                    {ColumnSetWorkoutId} INTEGER NOT NULL,
+                    {ColumnSetExerciseId} INTEGER NOT NULL,
+                    {ColumnRepetitions} INTEGER,
+                    {ColumnWeight} REAL,
+                    {ColumnRestTime} INTEGER,
+                    FOREIGN KEY ({ColumnSetWorkoutId}) REFERENCES {TableWorkouts}({ColumnWorkoutId}) ON DELETE CASCADE,
+                    FOREIGN KEY ({ColumnSetExerciseId}) REFERENCES {TableExercises}({ColumnExerciseId}) ON DELETE CASCADE
                 );";
 
             db.ExecSQL(createUsersTable);
             db.ExecSQL(createWorkoutsTable);
             db.ExecSQL(createExercisesTable);
+            db.ExecSQL(createExerciseSetsTable);
         }
 
-        // Called when the database is upgraded
         public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
         {
+            // Drop the old tables if they exist
             db.ExecSQL($"DROP TABLE IF EXISTS {TableUsers}");
             db.ExecSQL($"DROP TABLE IF EXISTS {TableWorkouts}");
             db.ExecSQL($"DROP TABLE IF EXISTS {TableExercises}");
+            db.ExecSQL($"DROP TABLE IF EXISTS {TableExerciseSets}");
+
+            // Recreate the tables with the updated schema
             OnCreate(db);
         }
 
-        // Add a new user
-        public bool AddUser(string email, string password)
+
+        // User Management
+        public bool AddUser(string email, string password, string name)
         {
             using (var db = WritableDatabase)
             {
@@ -81,13 +105,30 @@ namespace Gym_Me
                     var contentValues = new ContentValues();
                     contentValues.Put(ColumnEmail, email);
                     contentValues.Put(ColumnPassword, password);
+                    contentValues.Put(ColumnName, name);
 
                     db.InsertOrThrow(TableUsers, null, contentValues);
                     return true;
                 }
                 catch (Exception)
                 {
-                    return false; // Handle exceptions (e.g., duplicate email)
+                    return false;
+                }
+            }
+        }
+
+        public bool IsEmailRegistered(string email)
+        {
+            using (var db = ReadableDatabase)
+            {
+                // Query to check if the email already exists in the Users table
+                string query = $"SELECT COUNT(*) FROM {TableUsers} WHERE {ColumnEmail} = ?";
+
+                using (var cursor = db.RawQuery(query, new string[] { email }))
+                {
+                    // If cursor moves to the next row and the count is greater than 0, the email is already registered
+                    cursor.MoveToNext();
+                    return cursor.GetInt(0) > 0;
                 }
             }
         }
@@ -97,8 +138,8 @@ namespace Gym_Me
             using (var db = ReadableDatabase)
             {
                 string query = $@"
-            SELECT * FROM {TableUsers}
-            WHERE {ColumnEmail} = ? AND {ColumnPassword} = ?";
+                    SELECT * FROM {TableUsers}
+                    WHERE {ColumnEmail} = ? AND {ColumnPassword} = ?";
 
                 using (var cursor = db.RawQuery(query, new string[] { email, password }))
                 {
@@ -107,129 +148,43 @@ namespace Gym_Me
             }
         }
 
-        
-
-        //public void UpdateWorkout(string originalWorkoutName, string newWorkoutName, List<string> exercises, DateTime date)
-        //{
-        //    using (var db = this.WritableDatabase)
-        //    {
-        //        // Update the workout in the database
-        //        ContentValues values = new ContentValues();
-        //        values.Put("workout_name", newWorkoutName);
-        //        values.Put("date", date.ToString("yyyy-MM-dd"));
-
-        //        // Update exercises
-        //        DeleteExercisesForWorkout(originalWorkoutName, db); // Delete existing exercises
-        //        foreach (var exercise in exercises)
-        //        {
-        //            SaveExercise(newWorkoutName, exercise, db); // Save new exercises
-        //        }
-
-        //        db.Update("workouts", values, "workout_name = ?", new string[] { originalWorkoutName });
-        //    }
-        //}
-
-        //public bool UpdateWorkout(Workout workout)
-        //{
-        //    using (var db = WritableDatabase)
-        //    {
-        //        db.BeginTransaction();  // Begin a transaction
-        //        try
-        //        {
-        //            // Step 1: Delete the existing workout and its exercises
-        //            db.ExecSQL($"DELETE FROM {TableExercises} WHERE {ColumnWorkoutIdForExercise} = ?", new Java.Lang.Object[] { new Java.Lang.String(workout.Id.ToString()) });
-        //            db.ExecSQL($"DELETE FROM {TableWorkouts} WHERE {ColumnWorkoutId} = ?", new Java.Lang.Object[] { new Java.Lang.String(workout.Id.ToString()) });
-
-        //            // Step 2: Insert the updated workout and its exercises
-        //            SaveWorkout(workout.Id, workout.Exercises, workout.Date, db); // No need to pass the database as a parameter if it's already available in the method
-
-        //            db.SetTransactionSuccessful(); // Commit the transaction if everything is successful
-        //            return true;
-        //        }
-        //        catch (Exception ex)
-        //        {
-                  
-        //            throw ex; // Re-throw the exception after rolling back
-        //        }
-        //        finally
-        //        {
-        //            db.EndTransaction(); // Ensure the transaction is ended, whether success or failure
-        //        }
-        //    }
-        //}
-
-        // Inside DatabaseHelper.cs
-        public void DeleteExercisesForWorkout(string workoutName, SQLiteDatabase db)
+        // Workout Management
+        public long SaveWorkout(string workoutName, DateTime date)
         {
-            // Convert the string array to Java.Lang.Object array
-            Java.Lang.Object[] args = new Java.Lang.Object[] { new Java.Lang.String(workoutName) };
-
-            // Execute the SQL delete query
-            db.ExecSQL("DELETE FROM exercises WHERE workout_name = ?", args);
-        }
-
-
-        // Inside DatabaseHelper.cs
-        //public void SaveExercise(string workoutName, string exercise, SQLiteDatabase db)
-        //{
-        //    var workoutId = GetWorkoutIdByName(workoutName, db);
-        //    if (workoutId == -1) return; // No such workout
-
-        //    ContentValues values = new ContentValues();
-        //    values.Put(ColumnWorkoutIdForExercise, workoutId);
-        //    values.Put(ColumnExerciseName, exercise);
-
-        //    db.Insert(TableExercises, null, values);  // Inserting exercise into "Exercises" table
-        //}
-
-        private long GetWorkoutIdByName(string workoutName, SQLiteDatabase db)
-        {
-            string query = $@"
-            SELECT {ColumnWorkoutId}
-            FROM {TableWorkouts}
-            WHERE {ColumnWorkoutName} = ?";
-
-            using (var cursor = db.RawQuery(query, new string[] { workoutName }))
+            using (var db = WritableDatabase)
             {
-                if (cursor.Count > 0)
-                {
-                    cursor.MoveToFirst();
-                    return cursor.GetLong(0); // Return the Workout ID
-                }
-            }
-            return -1; // No workout found
-        }
-
-
-
-        public void SaveWorkout(string workoutName, List<string> exercises, DateTime selectedDate, SQLiteDatabase db)
-        {
-            try
-            {
-             //   db.BeginTransaction();
-                // Insert Workout
                 var contentValues = new ContentValues();
                 contentValues.Put(ColumnWorkoutName, workoutName);
-                contentValues.Put(ColumnWorkoutDate, selectedDate.ToString("yyyy-MM-dd")); // Use selectedDate here
+                contentValues.Put(ColumnWorkoutDate, date.ToString("yyyy-MM-dd"));
 
-                long workoutId = db.Insert(TableWorkouts, null, contentValues); // Insert the workout and get its ID
-
-                // Insert Exercises
-                foreach (var exercise in exercises)
-                {
-                    var exerciseValues = new ContentValues();
-                    exerciseValues.Put(ColumnWorkoutIdForExercise, workoutId);
-                    exerciseValues.Put(ColumnExerciseName, exercise);
-                    db.Insert(TableExercises, null, exerciseValues); // Insert each exercise
-                }
-
+                return db.Insert(TableWorkouts, null, contentValues);
             }
-            catch (Exception ex)
+        }
+
+        public long SaveExercise(string exerciseName)
+        {
+            using (var db = WritableDatabase)
             {
-              
-                throw ex; // Rollback and throw if something goes wrong
+                var contentValues = new ContentValues();
+                contentValues.Put(ColumnExerciseName, exerciseName);
+
+                return db.Insert(TableExercises, null, contentValues);
             }
-          
+        }
+
+        public void SaveExerciseSet(int workoutId, int exerciseId, int repetitions, double weight, int restTime)
+        {
+            using (var db = WritableDatabase)
+            {
+                var contentValues = new ContentValues();
+                contentValues.Put(ColumnSetWorkoutId, workoutId);
+                contentValues.Put(ColumnSetExerciseId, exerciseId);
+                contentValues.Put(ColumnRepetitions, repetitions);
+                contentValues.Put(ColumnWeight, weight);
+                contentValues.Put(ColumnRestTime, restTime);
+
+                db.Insert(TableExerciseSets, null, contentValues);
+            }
         }
 
         public List<string> GetAllWorkouts()
@@ -237,108 +192,102 @@ namespace Gym_Me
             var workouts = new List<string>();
             using (var db = ReadableDatabase)
             {
-                string query = $@"
-            SELECT {ColumnWorkoutName}
-            FROM {TableWorkouts}";
+                string query = $"SELECT {ColumnWorkoutName} FROM {TableWorkouts}";
 
-                using (var cursor = db.RawQuery(query, new string[] { }))
+                using (var cursor = db.RawQuery(query, null))
                 {
                     while (cursor.MoveToNext())
                     {
-                        workouts.Add(cursor.GetString(0)); // Add workout name to the list
+                        workouts.Add(cursor.GetString(0));
                     }
                 }
             }
             return workouts;
         }
 
-
-        // Check if an email already exists
-        public bool IsEmailRegistered(string email)
+        public int GetExerciseIdByName(string exerciseName)
         {
             using (var db = ReadableDatabase)
             {
-                string query = $@"
-                    SELECT * FROM {TableUsers}
-                    WHERE {ColumnEmail} = ?";
-
-                using (var cursor = db.RawQuery(query, new string[] { email }))
+                string query = $"SELECT {ColumnExerciseId} FROM {TableExercises} WHERE {ColumnExerciseName} = ?";
+                using (var cursor = db.RawQuery(query, new string[] { exerciseName }))
                 {
-                    return cursor.Count > 0;
+                    if (cursor.MoveToNext())
+                    {
+                        return cursor.GetInt(0);  // Return the ExerciseId
+                    }
+                    return -1; // Exercise not found
                 }
             }
         }
 
-        public List<string> GetWorkoutsForDate(DateTime date)
+        public List<ExerciseSet> GetExercisesForWorkout(int workoutId)
         {
-            var workouts = new List<string>();
             using (var db = ReadableDatabase)
             {
-                string query = $@"
-                    SELECT {ColumnWorkoutName}
-                    FROM {TableWorkouts}
-                    WHERE {ColumnWorkoutDate} = ?";
+                string query = "SELECT * FROM ExerciseSets WHERE WorkoutId = ?";
+                var cursor = db.RawQuery(query, new string[] { workoutId.ToString() });
 
-                string dateString = date.ToString("yyyy-MM-dd"); // Format date for SQLite
-                using (var cursor = db.RawQuery(query, new string[] { dateString }))
+                var exercises = new List<ExerciseSet>();
+                while (cursor.MoveToNext())
                 {
-                    while (cursor.MoveToNext())
+                    var exerciseSet = new ExerciseSet
                     {
-                        workouts.Add(cursor.GetString(0)); // Add workout name to the list
-                    }
+                        Id = cursor.GetInt(cursor.GetColumnIndex(ColumnExerciseSetId)),
+                        WorkoutId = cursor.GetInt(cursor.GetColumnIndex(ColumnSetWorkoutId)),
+                        ExerciseId = cursor.GetInt(cursor.GetColumnIndex(ColumnSetExerciseId)),
+                        Repetitions = cursor.GetInt(cursor.GetColumnIndex(ColumnRepetitions)),
+                        Weight = cursor.GetDouble(cursor.GetColumnIndex(ColumnWeight)),
+                        RestTime = cursor.GetInt(cursor.GetColumnIndex(ColumnRestTime))
+                    };
+                    exercises.Add(exerciseSet);
                 }
+                return exercises;
             }
-            return workouts;
         }
 
-        public List<string> GetExercisesForWorkout(string workoutName)
-        {
-            var exercises = new List<string>();
-            using (var db = ReadableDatabase)
-            {
-                string query = $@"
-                SELECT  {TableExercises}.{ColumnExerciseName}
-                FROM {TableExercises}
-                JOIN {TableWorkouts} ON {TableWorkouts}.{ColumnWorkoutId} = {TableExercises}.{ColumnWorkoutIdForExercise}
-                WHERE {TableWorkouts}.{ColumnWorkoutName} = ?";
 
 
-                using (var cursor = db.RawQuery(query, new string[] { workoutName }))
-                {
-                    if (cursor != null)
-                    {
-                        while (cursor.MoveToNext())
-                        {
-                            exercises.Add(cursor.GetString(0)); // Add exercise name to the list
-                        }
-                    }
-                    else
-                    {
-                        exercises.Add("dummy");
 
-                    }
-                }
-            }
-            return exercises;
-        }
-        public bool DeleteWorkout(string workoutName)
+        public bool DeleteWorkout(int workoutId)
         {
             try
             {
                 using (var db = WritableDatabase)
                 {
-                    // Delete the workout and its exercises from the database
-                    int rowsAffected = db.Delete("Workouts", "name = ?", new string[] { workoutName });
-                    db.Delete("Exercises", "workout_name = ?", new string[] { workoutName });  // Assuming "Exercises" table has a column "workout_name"
-                    return rowsAffected > 0; // Return true if rows were affected
+                    int rowsAffected = db.Delete(TableWorkouts, $"{ColumnWorkoutId} = ?", new string[] { workoutId.ToString() });
+                    return rowsAffected > 0;
                 }
             }
             catch (Exception ex)
             {
-                // Log the exception (optional)
                 Log.Error("DatabaseHelper", ex.Message);
                 return false;
             }
         }
+
+        public List<Workout> GetWorkoutsForDate(DateTime date)
+        {
+            using (var db = ReadableDatabase)
+            {
+                string query = "SELECT * FROM Workouts WHERE Date = ?";
+                var cursor = db.RawQuery(query, new string[] { date.ToString("yyyy-MM-dd") });
+
+                var workouts = new List<Workout>();
+                while (cursor.MoveToNext())
+                {
+                    var workout = new Workout
+                    {
+                        Id = cursor.GetInt(cursor.GetColumnIndex("Id")),
+                        Name = cursor.GetString(cursor.GetColumnIndex("Name")),
+                        Date = DateTime.Parse(cursor.GetString(cursor.GetColumnIndex("Date")))
+                    };
+                    workouts.Add(workout);
+                }
+                return workouts;
+            }
+        }
+
+
     }
 }

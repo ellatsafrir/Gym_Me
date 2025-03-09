@@ -53,6 +53,7 @@ namespace Gym_Me
                 }
             };
 
+
             // Navigate to SignUpActivity when the sign-up link is clicked
             signUpLink.Click += (sender, e) =>
             {
@@ -63,7 +64,7 @@ namespace Gym_Me
 
         private bool IsValidLogin(string email, string password)
         {
-            // Check if the login is for the "admin" user
+            // Check if the login is for the "admin" user (if needed)
             if (email.Equals("admin", StringComparison.OrdinalIgnoreCase) && password == "123456789")
             {
                 return true;
@@ -72,6 +73,7 @@ namespace Gym_Me
             // Check if the user exists in the SQLite database
             return dbHelper.AuthenticateUser(email, password);
         }
+
 
         private void SaveUserToPreferences(string email)
         {

@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Gym_Me
 {
-    [Activity(Label = "MainActivity")]
+    [Activity(Label = "MainActivity", MainLauncher = true)]
     public class MainActivity : Activity
     {
         private ListView workoutListView;
@@ -50,11 +50,11 @@ namespace Gym_Me
                 StartActivityForResult(intent, 1); // Request code 1
             };
 
-            history.Click+= (sender, e) =>
-            {
-                Intent intent = new Intent(this, typeof(WorkoutHistoryActivity));
-                StartActivityForResult(intent, 1); // Request code 1
-            };
+            //history.Click+= (sender, e) =>
+            //{
+            //    Intent intent = new Intent(this, typeof(WorkoutHistoryActivity));
+            //    StartActivityForResult(intent, 1); // Request code 1
+            //};
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -64,9 +64,11 @@ namespace Gym_Me
             if (requestCode == 1 && resultCode == Result.Ok)
             {
                 // Refresh the workout list after adding or editing a workout
+                Log.Debug("MainActivity", "OnActivityResult triggered: Refreshing workouts");
                 LoadTodayWorkouts();
             }
         }
+
 
         private void LoadTodayWorkouts()
         {
@@ -75,8 +77,8 @@ namespace Gym_Me
                 DateTime today = DateTime.Now.Date;
 
                 // Fetch today's workouts
-                var workoutNames = dbHelper.GetWorkoutsForDate(today);
-                if (workoutNames == null || workoutNames.Count == 0)
+                var workouts = dbHelper.GetWorkoutsForDate(today);
+                if (workouts == null || workouts.Count == 0)
                 {
                     Toast.MakeText(this, "No workouts scheduled for today.", ToastLength.Short).Show();
                     workoutList = new List<Workout>();
@@ -84,16 +86,19 @@ namespace Gym_Me
                 else
                 {
                     workoutList = new List<Workout>();
-
-                    foreach (var workoutName in workoutNames)
+                    foreach (var workout in workouts)
                     {
                         // Fetch exercises for each workout
-                        var exercises = dbHelper.GetExercisesForWorkout(workoutName) ?? new List<string>();
-                        workoutList.Add(new Workout
+                        var exercises = dbHelper.GetExercisesForWorkout(workout.Id) ?? new List<ExerciseSet>();
+                        workout.Exercises = exercises;  // Set the exercises in the workout
+
+                        // Log the exercises for debugging
+                        foreach (var exercise in exercises)
                         {
-                            //Name = workoutName,
-                            //Exercises = exercises
-                        });
+                            Log.Debug("ExerciseSets", $"ExerciseSet Id: {exercise.Id}, WorkoutId: {exercise.WorkoutId}, ExerciseId: {exercise.ExerciseId}, Reps: {exercise.Repetitions}, Weight: {exercise.Weight}, RestTime: {exercise.RestTime}");
+                        }
+
+                        workoutList.Add(workout);
                     }
                 }
 
@@ -106,6 +111,8 @@ namespace Gym_Me
                 Toast.MakeText(this, "Failed to load workouts: " + ex.Message, ToastLength.Long).Show();
             }
         }
+
+
 
         private bool IsUserLoggedIn()
         {

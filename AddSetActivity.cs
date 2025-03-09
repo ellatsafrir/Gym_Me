@@ -81,44 +81,6 @@ namespace Gym_Me
                 // Close this activity
                 Finish();
             };
-
-
-            // Handle "Save Set" button click
-            //saveSetButton.Click += (s, e) =>
-            //{
-            //    // Validate that an exercise is selected
-            //    if (string.IsNullOrEmpty(selectedExerciseName))
-            //    {
-            //        Toast.MakeText(this, "Please select an exercise!", ToastLength.Short).Show();
-            //        return;
-            //    }
-
-            //    // Retrieve input values
-            //    string reps = repsEditText.Text;
-            //    string weight = weightEditText.Text;
-            //    string time = timeEditText.Text;
-            //    string rest = restEditText.Text;
-
-            //    // Validate inputs
-
-            //    if (string.IsNullOrWhiteSpace(reps) || string.IsNullOrWhiteSpace(weight) ||
-            //        string.IsNullOrWhiteSpace(time) || string.IsNullOrWhiteSpace(rest))
-            //    {
-            //        Toast.MakeText(this, "Please fill in all fields!", ToastLength.Short).Show();
-            //        return;
-            //    }
-
-            //    // Format set details
-            //    string setDetails = $"{selectedExerciseName} - Reps: {reps}, Weight: {weight}kg, Time: {time}s, Rest: {rest}s";
-
-            //    // Pass the set details back to the previous activity
-            //    var resultIntent = new Android.Content.Intent();
-            //    resultIntent.PutExtra("SetDetails", setDetails);
-            //    SetResult(Result.Ok, resultIntent);
-
-            //    // Close this activity
-            //    Finish();
-            //};
         }
 
         private void PopulateExerciseList()

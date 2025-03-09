@@ -1,16 +1,20 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gym_Me
 {
+    [Table("Workout")]
     public class Workout
     {
-        public string Id { get; set; }
-        public string Description { get; set; }
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+
+        public string Name { get; set; }
         public DateTime Date { get; set; }
-        public List<SetBase> Exercises { get; set; }
+
+        // Not stored directly in the table, but useful for querying sets
+        [Ignore]
+        public List<ExerciseSet> Exercises { get; set; } = new List<ExerciseSet>();
     }
 }

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Gym_Me
 {
-    [Activity(Label = "AddWorkoutActivity", MainLauncher = true)]
+    [Activity(Label = "AddWorkoutActivity")]
     public class AddWorkoutActivity : Activity
     {
         private EditText workoutNameEditText;
@@ -55,6 +55,11 @@ namespace Gym_Me
             {
                 var intent = new Intent(this, typeof(AddSetActivity));
                 StartActivityForResult(intent, 1); // Request code 1
+            };
+
+            saveWorkoutButton.Click += (sender, e) =>
+            {
+                SaveWorkout();
             };
 
         }
@@ -112,53 +117,58 @@ namespace Gym_Me
                 }
             }
         }
+        private void SaveWorkout()
+        {
+            string workoutName = workoutNameEditText.Text.Trim();
+
+            if (string.IsNullOrEmpty(workoutName))
+            {
+                Toast.MakeText(this, "Please enter a workout name.", ToastLength.Short).Show();
+                return;
+            }
+
+            if (selectedDate == DateTime.MinValue)
+            {
+                Toast.MakeText(this, "Please select a date.", ToastLength.Short).Show();
+                return;
+            }
+
+            // Create Workout object
+            Workout workout = new Workout
+            {
+                Name = workoutName,
+                Date = selectedDate
+            };
+
+            // Insert workout into database
+            long workoutId = _databaseHelper.SaveWorkout(workout.Name, workout.Date);
+            if (workoutId == -1)
+            {
+                Toast.MakeText(this, "Failed to save workout.", ToastLength.Short).Show();
+                return;
+            }
+
+            // Save ExerciseSets for this workout
+            foreach (var setDetails in setDetailsList)
+            {
+                string[] setData = setDetails.Split(',');
+                int reps = Convert.ToInt32(setData[1].Split(':')[1].Trim());
+                double weight = Convert.ToDouble(setData[2].Split(':')[1].Trim().Replace("kg", ""));
+                int restTime = Convert.ToInt32(setData[3].Split(':')[1].Trim().Replace("s", ""));
+
+                // Find corresponding exercise from CSV
+                string exerciseName = setData[0].Split(':')[1].Trim();
+                int exerciseId = _databaseHelper.GetExerciseIdByName(exerciseName);
+
+                // Save ExerciseSet
+                _databaseHelper.SaveExerciseSet((int)workoutId, exerciseId, reps, weight, restTime);
+            }
+
+            Toast.MakeText(this, "Workout saved successfully!", ToastLength.Short).Show();
+
+            Finish();
+        }
 
 
-
-
-        //private void SaveWorkout()
-        //{
-        //    string workoutName = workoutNameEditText.Text.Trim();
-
-        //    if (string.IsNullOrEmpty(workoutName))
-        //    {
-        //        Toast.MakeText(this, "Please enter workout name and exercises.", ToastLength.Short).Show();
-        //        return;
-        //    }
-
-        //    if (selectedDate == DateTime.MinValue)
-        //    {
-        //        Toast.MakeText(this, "Please select a date.", ToastLength.Short).Show();
-        //        return;
-        //    }
-
-        //    var exercises = new List<string>(exercisesInput.Split(','));
-
-        //    for (int i = 0; i < exercises.Count; i++)
-        //    {
-        //        exercises[i] = exercises[i].Trim();
-        //    }
-
-        //    try
-        //    {
-        //        if (isEditing)
-        //        {
-        //            _databaseHelper.UpdateWorkout(originalWorkoutName, workoutName, exercises, selectedDate);
-        //        }
-        //        else
-        //        {
-        //            _databaseHelper.SaveWorkout(workoutName, exercises, selectedDate, _databaseHelper.WritableDatabase);
-        //        }
-
-        //        Intent resultIntent = new Intent();
-        //        SetResult(Result.Ok, resultIntent);
-        //        Toast.MakeText(this, "Workout saved successfully!", ToastLength.Short).Show();
-        //        Finish();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Toast.MakeText(this, $"Error saving workout: {ex.Message}", ToastLength.Short).Show();
-        //    }
-        //}
     }
 }

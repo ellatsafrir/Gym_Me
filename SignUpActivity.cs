@@ -52,7 +52,7 @@ namespace Gym_Me
                     return;
                 }
 
-                bool isAdded = dbHelper.AddUser(email, password);
+                bool isAdded = dbHelper.AddUser(email, password, name);
                 if (isAdded)
                 {
                     Toast.MakeText(this, "Registration successful! Please log in.", ToastLength.Short).Show();
