@@ -1,4 +1,9 @@
-﻿using Android.Views;
+﻿using Android.App;
+using Android.Views;
+using Android.Widget;
+using Android.Content;
+using System;
+using System.Collections.Generic;
 using Gym_Me;
 
 public class WorkoutAdapter : BaseAdapter<Workout>
@@ -27,29 +32,60 @@ public class WorkoutAdapter : BaseAdapter<Workout>
         var workout = _workouts[position];
         var workoutNameTextView = view.FindViewById<TextView>(Resource.Id.workoutNameTextView);
         var workoutDateTextView = view.FindViewById<TextView>(Resource.Id.workoutDateTextView);
-        var exercisesLayout = view.FindViewById<LinearLayout>(Resource.Id.exercisesLayout); // The layout to show exercises
-        var exercisesTextView = view.FindViewById<TextView>(Resource.Id.exercisesTextView); // The TextView for exercises
+        var exercisesTextView = view.FindViewById<TextView>(Resource.Id.exercisesTextView);
 
         workoutNameTextView.Text = workout.Name;
         workoutDateTextView.Text = workout.Date.ToString("yyyy-MM-dd");
 
-        // Handle item click to show/hide exercises
-        view.Click += (sender, e) =>
+        view.LongClick += (sender, e) =>
         {
-            if (exercisesLayout.Visibility == Android.Views.ViewStates.Gone)
-            {
-                exercisesLayout.Visibility = Android.Views.ViewStates.Visible;
-                exercisesTextView.Text = string.Join("\n", workout.Exercises.Select(exercise =>
-                    $"Reps: {exercise.Repetitions}, Weight: {exercise.Weight}, Rest: {exercise.RestTime}s"));
-
-            }
-            else
-            {
-                exercisesLayout.Visibility = Android.Views.ViewStates.Gone;
-            }
+            ShowPopupMenu(view, workout);
         };
 
         return view;
     }
 
+    private void ShowPopupMenu(View view, Workout workout)
+    {
+        PopupMenu menu = new PopupMenu(_context, view);
+        menu.Inflate(Resource.Menu.edit_popup_menu);
+
+        menu.MenuItemClick += (s, e) =>
+        {
+            if (e.Item.ItemId == Resource.Id.menu_edit)
+            {
+                Intent intent = new Intent(_context, typeof(AddWorkoutActivity));
+                intent.PutExtra("WorkoutId", workout.Id);
+                _context.StartActivity(intent);
+            }
+            else if (e.Item.ItemId == Resource.Id.menu_delete)
+            {
+                ShowDeleteConfirmation(workout);
+            }
+        };
+
+        menu.Show();
+    }
+
+    private void ShowDeleteConfirmation(Workout workout)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+        builder.SetTitle("Delete Workout");
+        builder.SetMessage("Are you sure you want to delete this workout?");
+        builder.SetPositiveButton("Delete", (sender, e) =>
+        {
+            if (_dbHelper.DeleteWorkout(workout.Id))
+            {
+                Toast.MakeText(_context, "Workout deleted", ToastLength.Short).Show();
+                _workouts.Remove(workout);
+                NotifyDataSetChanged();
+            }
+            else
+            {
+                Toast.MakeText(_context, "Failed to delete workout", ToastLength.Short).Show();
+            }
+        });
+        builder.SetNegativeButton("Cancel", (sender, e) => { });
+        builder.Show();
+    }
 }

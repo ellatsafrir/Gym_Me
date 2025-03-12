@@ -1,11 +1,12 @@
+// MainActivity.cs
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Util;
+using Android.Views;
 using Android.Widget;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Gym_Me
 {
@@ -22,53 +23,73 @@ namespace Gym_Me
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
-            // Check if the user is logged in
             if (!IsUserLoggedIn())
             {
-                Intent intent = new Intent(this, typeof(LoginActivity));
-                StartActivity(intent);
+                StartActivity(new Intent(this, typeof(LoginActivity)));
                 Finish();
                 return;
             }
-            
 
-            // Initialize UI elements
             history = FindViewById<Button>(Resource.Id.historyPage);
             workoutListView = FindViewById<ListView>(Resource.Id.workoutListView);
             var addWorkoutButton = FindViewById<Button>(Resource.Id.addWorkoutButton);
-
-            // Initialize database helper
             dbHelper = new DatabaseHelper(this);
-
-            // Load today's workouts
             LoadTodayWorkouts();
 
-            // Set up Add Workout button click event
             addWorkoutButton.Click += (sender, e) =>
             {
                 Intent intent = new Intent(this, typeof(AddWorkoutActivity));
-                StartActivityForResult(intent, 1); // Request code 1
+                StartActivityForResult(intent, 1);
             };
 
-            //history.Click+= (sender, e) =>
-            //{
-            //    Intent intent = new Intent(this, typeof(WorkoutHistoryActivity));
-            //    StartActivityForResult(intent, 1); // Request code 1
-            //};
+            workoutListView.ItemLongClick += (sender, e) =>
+            {
+                ShowPopupMenu(e.Position);
+            };
+        }
+
+        private void ShowPopupMenu(int position)
+        {
+            var popupMenu = new PopupMenu(this, workoutListView.GetChildAt(position));
+            popupMenu.MenuInflater.Inflate(Resource.Menu.edit_popup_menu, popupMenu.Menu);
+
+            popupMenu.MenuItemClick += (s, args) =>
+            {
+                var selectedWorkout = workoutList[position];
+                if (args.Item.ItemId == Resource.Id.menu_edit)
+                {
+                    EditWorkout(selectedWorkout);
+                }
+                else if (args.Item.ItemId == Resource.Id.menu_delete)
+                {
+                    DeleteWorkout(selectedWorkout);
+                }
+            };
+            popupMenu.Show();
+        }
+
+        private void EditWorkout(Workout workout)
+        {
+            Intent intent = new Intent(this, typeof(AddWorkoutActivity));
+            intent.PutExtra("WorkoutId", workout.Id);
+            StartActivityForResult(intent, 1);
+        }
+
+        private void DeleteWorkout(Workout workout)
+        {
+            dbHelper.DeleteWorkout(workout.Id);
+            LoadTodayWorkouts();
+            Toast.MakeText(this, "Workout deleted", ToastLength.Short).Show();
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
             base.OnActivityResult(requestCode, resultCode, data);
-
             if (requestCode == 1 && resultCode == Result.Ok)
             {
-                // Refresh the workout list after adding or editing a workout
-                Log.Debug("MainActivity", "OnActivityResult triggered: Refreshing workouts");
                 LoadTodayWorkouts();
             }
         }
-
 
         private void LoadTodayWorkouts()
         {
@@ -114,19 +135,11 @@ namespace Gym_Me
 
 
 
+
         private bool IsUserLoggedIn()
         {
             var preferences = GetSharedPreferences("GymMePreferences", FileCreationMode.Private);
-            string savedEmail = preferences.GetString("userEmail", null);
-            return !string.IsNullOrEmpty(savedEmail);
+            return !string.IsNullOrEmpty(preferences.GetString("userEmail", null));
         }
-        //public  void Recreated() {
-
-        //    //Intent intent = new Intent(this, typeof(MainActivity));
-        //    //Finish(); // Close the current activity
-        //    //StartActivity(intent); 
-        //    LoadTodayWorkouts();
-        //}
     }
-   
 }
