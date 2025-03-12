@@ -1,61 +1,50 @@
-//using Android.App;
-//using Android.OS;
-//using Android.Util;
-//using Android.Widget;
-//using System;
-//using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using Android.App;
+using Android.OS;
+using Android.Views;
+using Android.Widget;
+using Gym_Me;
 
-//namespace Gym_Me
-//{
-//    [Activity(Label = "Workout History")]
-//    public class WorkoutHistoryActivity : Activity
-//    {
-//        private ListView workoutHistoryListView;
-//        private List<Workout> workoutHistoryList;
-//        private DatabaseHelper dbHelper;
+namespace Gym_Me
+{
+    [Activity(Label = "Workout History")]
+    public class WorkoutHistoryActivity : Activity
+    {
+        private ListView workoutsListView;
+        private List<string> workoutsList;
+        private DatabaseHelper dbHelper;
+        private ArrayAdapter<string> workoutsAdapter;
 
-//        protected override void OnCreate(Bundle savedInstanceState)
-//        {
-//            base.OnCreate(savedInstanceState);
-//            SetContentView(Resource.Layout.activity_workout_history);
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+            SetContentView(Resource.Layout.activity_workout_history);
 
-//            workoutHistoryListView = FindViewById<ListView>(Resource.Id.workoutListView);
-//            dbHelper = new DatabaseHelper(this);
-//            // Inside your Activity or Fragment's OnCreate or OnViewCreated method
-//            if (workoutHistoryListView == null)
-//            {
-//                Log.Error("WorkoutHistory", "ListView is null");
-//                return;
-//            }
+            // Initialize views and database helper
+            workoutsListView = FindViewById<ListView>(Resource.Id.workoutsListView);
+            dbHelper = new DatabaseHelper(this);
 
-//            LoadWorkoutHistory();
+            // Get all workouts from the database
+            workoutsList = dbHelper.GetAllWorkouts();
 
-//            Button backButton = FindViewById<Button>(Resource.Id.backButton);
-//            backButton.Click += (sender, e) =>
-//            {
-//                Finish(); // Go back to the previous activity
-//            };
-//        }
+            // Set up the adapter for the ListView
+            workoutsAdapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, workoutsList);
+            workoutsListView.Adapter = workoutsAdapter;
 
-//        private void LoadWorkoutHistory()
-//        {
-//            var allWorkouts = dbHelper.GetAllWorkouts(); // Fetch all workout names from the database
-//            var workoutListWithDetails = new List<Workout>();
+            // Set item click listener to show workout details or edit
+            workoutsListView.ItemClick += WorkoutsListView_ItemClick;
+        }
 
-//            foreach (var workoutName in allWorkouts)
-//            {
-//                var exercises = dbHelper.GetExercisesForWorkout(workoutName); // Get exercises for each workout
-//                workoutListWithDetails.Add(new Workout
-//                {
-//                    //Name = workoutName,
-//                    //Exercises = exercises
-//                });
-//            }
+        // Item click event to handle workout selection
+        private void WorkoutsListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        {
+            string selectedWorkoutName = workoutsList[e.Position];
 
-//            // Set up a custom adapter for displaying workouts
-//            var adapter = new WorkoutHistoryAdapter(this, workoutListWithDetails);
-//            workoutHistoryListView.Adapter = adapter;
-//        }
-
-//    }
-//}
+            // You can launch a new activity to show the workout details or edit it
+            var intent = new Android.Content.Intent(this, typeof(WorkoutAdapter));
+            intent.PutExtra("WorkoutName", selectedWorkoutName);
+            StartActivity(intent);
+        }
+    }
+}

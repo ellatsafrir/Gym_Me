@@ -148,6 +148,23 @@ namespace Gym_Me
             }
         }
 
+        public int GetWorkoutIdByName(string workoutName)
+        {
+            using (var db = ReadableDatabase)
+            {
+                string query = $"SELECT {ColumnWorkoutId} FROM {TableWorkouts} WHERE {ColumnWorkoutName} = ?";
+                using (var cursor = db.RawQuery(query, new string[] { workoutName }))
+                {
+                    if (cursor.MoveToNext())
+                    {
+                        return cursor.GetInt(0); // Return the WorkoutId
+                    }
+                }
+            }
+            return -1; // Return -1 if workout not found
+        }
+
+
         // Workout Management
         public long SaveWorkout(string workoutName, DateTime date)
         {
@@ -198,12 +215,13 @@ namespace Gym_Me
                 {
                     while (cursor.MoveToNext())
                     {
-                        workouts.Add(cursor.GetString(0));
+                        workouts.Add(cursor.GetString(0)); // Get workout name
                     }
                 }
             }
             return workouts;
         }
+
 
         public int GetExerciseIdByName(string exerciseName)
         {
@@ -286,6 +304,25 @@ namespace Gym_Me
                 }
                 return workouts;
             }
+        }
+        public Exercise GetExerciseById(int exerciseId)
+        {
+            using (var db = ReadableDatabase)
+            {
+                string query = $"SELECT * FROM {TableExercises} WHERE {ColumnExerciseId} = ?";
+                using (var cursor = db.RawQuery(query, new string[] { exerciseId.ToString() }))
+                {
+                    if (cursor.MoveToNext())
+                    {
+                        return new Exercise
+                        {
+                            Id = cursor.GetInt(cursor.GetColumnIndex(ColumnExerciseId)),
+                            Description = cursor.GetString(cursor.GetColumnIndex(ColumnExerciseName))
+                        };
+                    }
+                }
+            }
+            return null; // Return null if no exercise found
         }
 
 

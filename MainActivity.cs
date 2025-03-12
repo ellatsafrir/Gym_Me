@@ -42,6 +42,12 @@ namespace Gym_Me
                 StartActivityForResult(intent, 1);
             };
 
+            history.Click += (sender, e) =>
+            {
+                Intent intent = new Intent(this, typeof(WorkoutHistoryActivity));
+                StartActivityForResult(intent, 1);
+            };
+
             workoutListView.ItemLongClick += (sender, e) =>
             {
                 ShowPopupMenu(e.Position);
