@@ -42,7 +42,7 @@ namespace Gym_Me
             string selectedWorkoutName = workoutsList[e.Position];
 
             // You can launch a new activity to show the workout details or edit it
-            var intent = new Android.Content.Intent(this, typeof(WorkoutAdapter));
+            var intent = new Android.Content.Intent(this, typeof(WorkoutHistoryAdapter));
             intent.PutExtra("WorkoutName", selectedWorkoutName);
             StartActivity(intent);
         }

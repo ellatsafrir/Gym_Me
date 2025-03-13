@@ -2,17 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/backButton"
+    <TextView
+        android:id="@+id/titleText"
+        android:text="Workout History"
+        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back" />
+        android:layout_gravity="center"
+        android:padding="10dp"/>
 
     <ListView
-        android:id="@+id/workoutHistoryListView"
+        android:id="@+id/workoutsListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:padding="10dp"/>
 </LinearLayout>

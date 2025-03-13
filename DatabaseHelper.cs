@@ -93,6 +93,51 @@ namespace Gym_Me
             // Recreate the tables with the updated schema
             OnCreate(db);
         }
+        public List<string> GetAllWorkouts()
+        {
+            var workouts = new List<string>();
+
+            using (var db = this.ReadableDatabase)
+            {
+                var cursor = db.Query(
+                    "Workouts",                                  // Table name
+                    new string[] { "Id", "Name", "Date" },       // Columns to select
+                    null,                                        // WHERE clause
+                    null,                                        // Selection args
+                    null,                                        // GROUP BY
+                    null,                                        // HAVING
+                    "Date DESC"                                  // ORDER BY (optional)
+                );
+
+                if (cursor.Count > 0)
+                {
+                    while (cursor.MoveToNext())
+                    {
+                        int workoutId = cursor.GetInt(cursor.GetColumnIndex("Id"));
+                        string workoutName = cursor.GetString(cursor.GetColumnIndex("Name"));
+                        string workoutDate = cursor.GetString(cursor.GetColumnIndex("Date"));
+
+                        // Fetch exercises for the current workout
+                        var exercises = GetExercisesForWorkout(workoutId);
+
+                        // Format the exercises list
+                        string exerciseDetails = exercises.Count > 0
+                            ? string.Join(", ", exercises)
+                            : "No exercises found";
+
+                        // Combine name, date, and exercises
+                        string workoutDisplay = $"{workoutName} - {workoutDate}\nExercises: {exerciseDetails}";
+                        workouts.Add(workoutDisplay);
+                    }
+                }
+
+                cursor.Close();
+            }
+
+            return workouts;
+        }
+
+
 
 
         // User Management
@@ -204,24 +249,6 @@ namespace Gym_Me
             }
         }
 
-        public List<string> GetAllWorkouts()
-        {
-            var workouts = new List<string>();
-            using (var db = ReadableDatabase)
-            {
-                string query = $"SELECT {ColumnWorkoutName} FROM {TableWorkouts}";
-
-                using (var cursor = db.RawQuery(query, null))
-                {
-                    while (cursor.MoveToNext())
-                    {
-                        workouts.Add(cursor.GetString(0)); // Get workout name
-                    }
-                }
-            }
-            return workouts;
-        }
-
 
         public int GetExerciseIdByName(string exerciseName)
         {
@@ -323,6 +350,26 @@ namespace Gym_Me
                 }
             }
             return null; // Return null if no exercise found
+        }
+
+        public Workout GetWorkoutById(int workoutId)
+        {
+            using (var db = ReadableDatabase)
+            {
+                string query = $"SELECT * FROM {TableWorkouts} WHERE {ColumnWorkoutId} = ?";
+                var cursor = db.RawQuery(query, new string[] { workoutId.ToString() });
+
+                if (cursor.MoveToNext())
+                {
+                    return new Workout
+                    {
+                        Id = cursor.GetInt(cursor.GetColumnIndex(ColumnWorkoutId)),
+                        Name = cursor.GetString(cursor.GetColumnIndex(ColumnWorkoutName)),
+                        Date = DateTime.Parse(cursor.GetString(cursor.GetColumnIndex(ColumnWorkoutDate)))
+                    };
+                }
+                return null; // Return null if no workout found with the given ID
+            }
         }
 
 
