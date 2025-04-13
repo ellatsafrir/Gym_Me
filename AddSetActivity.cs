@@ -58,7 +58,7 @@ namespace Gym_Me
                 {
                     excersize = new Exercise
                     {
-                        Excersize = null, // TODO: link to actual excersize
+                        Excersize = excersizeList.GetExcersizeData(selectedExerciseName), // TODO: link to actual excersize
                         Type = "Type",
                         Reps = Convert.ToInt32(repsEditText.Text),
                         Weight = Convert.ToDouble(weightEditText.Text),

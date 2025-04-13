@@ -92,7 +92,7 @@ namespace Gym_Me
                         Exercise exercise = JsonConvert.DeserializeObject<Exercise>(exerciseJson);
 
                         // Format the set details using the Exercise object
-                        string setDetails = $"Exercise: {exercise.Excersize}, Reps: {exercise.Reps}, Weight: {exercise.Weight}, Time: {exercise.SetTime}s, Rest: {exercise.RestTime}s";
+                        string setDetails = $"Exercise: {exercise.Excersize.Name} , Reps: {exercise.Reps}, Weight: {exercise.Weight}, Time: {exercise.SetTime}s, Rest: {exercise.RestTime}s";
 
                         Toast.MakeText(this, $"Received Set: {setDetails}", ToastLength.Short).Show();
 
