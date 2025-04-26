@@ -15,6 +15,6 @@ namespace Gym_Me
 
         // Not stored directly in the table, but useful for querying sets
         [Ignore]
-        public List<ExerciseSet> Exercises { get; set; } = new List<ExerciseSet>();
+        public List<Exercise> Exercises { get; set; } = new List<Exercise>();
     }
 }

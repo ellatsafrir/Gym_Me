@@ -9,43 +9,38 @@ namespace Gym_Me
     [Serializable]
     public record ExcersizeData
     {
-
-        //public ExcersizeData(string name, string desc, string muscles, string videoLink) 
-        //{
-        //    this.Name = name;
-        //    this.Description = desc;
-        //    this.Muscles = muscles;
-        //    this.VideoLink = videoLink;
-        //}
-
-        //public ExcersizeData(ExcersizeData val)
-        //{
-        //    //this.Name = (String)val.Name.Clone();
-        //    //this.Description = (String)val.Description.Clone();
-        //    //this.Muscles = (String)val.Muscles.Clone();
-        //    //this.VideoLink = (String)val.VideoLink.Clone();
-        //    this.Name = val.Name;
-        //    this.Description = val.Description;
-        //    this.Muscles = val.Muscles;
-        //    this.VideoLink = val.VideoLink;
-        //}
+        [Ignore] public required int Id { get; set; } = -1;
         [Name("Name")] public required string Name { get; set; }
         [Name("Description")] public required string Description { get; set; }
         [Name("Muscles")] public required string Muscles { get; set; }
         [Name("VideoLink")] public required string VideoLink { get; set; }
-        //public override string ToString()
-        //{
-        //    return $"Name: {Name}, Desc: {Description}, Muscles: {Muscles}, Link: {VideoLink}";
-        //}
     }
     public class ExcersizeList
     {
-        public List<ExcersizeData> excersizes { get; set; }
+        private static ExcersizeList _instance;
+        private static readonly object _lock = new object();
+        private ExcersizeList() { }
 
-        public ExcersizeList()
+        public List<ExcersizeData> excersizes { get; private set; } = new List<ExcersizeData>();
+
+        public static ExcersizeList Instance
         {
-            this.excersizes = new List<ExcersizeData>();
+            get 
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ExcersizeList();
+                        }
+                    }
+                }
+                return _instance;
+            }
         }
+
         public void LoadCsvFromAssets(Context context)
         {
             string fileName = "excersize.csv";
@@ -75,15 +70,27 @@ namespace Gym_Me
         public ExcersizeData GetExcersizeData(string excersizeName)
         {
             ExcersizeData returnVal = null;
+            int cnt = 0;
             foreach (var excersize in excersizes)
             {
                 if (excersize.Name == excersizeName)
                 {
+                    excersize.Id = cnt;
                     returnVal = excersize with { };
                     break;
                 }
+                cnt++;
             }
             return returnVal;
+        }
+
+        public ExcersizeData GetExcersizeData(int excersizeId)
+        {
+            if (excersizeId > 0)
+            {
+                return excersizes[excersizeId] with { };
+            }
+            return null;
         }
     }
 }

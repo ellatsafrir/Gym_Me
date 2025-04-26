@@ -24,7 +24,7 @@ namespace Gym_Me
             SetContentView(Resource.Layout.activity_add_set); // Your Add Set XML layout
 
             // Load exercises from CSV
-            excersizeList = new ExcersizeList();
+            excersizeList = ExcersizeList.Instance;
             excersizeList.LoadCsvFromAssets(this);
 
             // References to UI elements

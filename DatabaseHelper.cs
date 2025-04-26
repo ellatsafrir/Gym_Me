@@ -9,7 +9,7 @@ namespace Gym_Me
     public class DatabaseHelper : SQLiteOpenHelper
     {
         private const string DatabaseName = "GymMe.db";
-        private const int DatabaseVersion = 2;
+        private const int DatabaseVersion = 4;
 
         // Table and Column names
         private const string TableUsers = "Users";
@@ -33,12 +33,12 @@ namespace Gym_Me
         private const string ColumnSetExerciseId = "ExerciseId";
         private const string ColumnRepetitions = "Repetitions";
         private const string ColumnWeight = "Weight";
+        private const string ColumnSetTime = "SetTime";
         private const string ColumnRestTime = "RestTime";
 
         public DatabaseHelper(Context context)
             : base(context, DatabaseName, null, DatabaseVersion)
-        {
-        }
+        {}
 
         public override void OnCreate(SQLiteDatabase db)
         {
@@ -71,7 +71,8 @@ namespace Gym_Me
                     {ColumnSetExerciseId} INTEGER NOT NULL,
                     {ColumnRepetitions} INTEGER,
                     {ColumnWeight} REAL,
-                    {ColumnRestTime} INTEGER,
+                    {ColumnSetTime} REAL,
+                    {ColumnRestTime} REAL,
                     FOREIGN KEY ({ColumnSetWorkoutId}) REFERENCES {TableWorkouts}({ColumnWorkoutId}) ON DELETE CASCADE,
                     FOREIGN KEY ({ColumnSetExerciseId}) REFERENCES {TableExercises}({ColumnExerciseId}) ON DELETE CASCADE
                 );";
@@ -119,11 +120,15 @@ namespace Gym_Me
 
                         // Fetch exercises for the current workout
                         var exercises = GetExercisesForWorkout(workoutId);
-
-                        // Format the exercises list
-                        string exerciseDetails = exercises.Count > 0
-                            ? string.Join(", ", exercises)
-                            : "No exercises found";
+                        string exerciseDetails = "";
+                        foreach (var exerciseSet in exercises)
+                        {
+                            exerciseDetails += exerciseSet.Excersize.Id + "\n";
+                        }
+                        //// Format the exercises list
+                        //string exerciseDetails = exercises.Count > 0
+                        //    ? string.Join(", ", exercises)
+                        //    : "No exercises found";
 
                         // Combine name, date, and exercises
                         string workoutDisplay = $"{workoutName} - {workoutDate}\nExercises: {exerciseDetails}";
@@ -234,19 +239,23 @@ namespace Gym_Me
             }
         }
 
-        public void SaveExerciseSet(int workoutId, int exerciseId, int repetitions, double weight, int restTime)
+        //public void SaveExerciseSet(int workoutId, int exerciseId, int repetitions, double weight, double restTime)
+        public long SaveExerciseSet(int workoutId, Exercise excersize)
         {
+            long retVal;
             using (var db = WritableDatabase)
             {
                 var contentValues = new ContentValues();
                 contentValues.Put(ColumnSetWorkoutId, workoutId);
-                contentValues.Put(ColumnSetExerciseId, exerciseId);
-                contentValues.Put(ColumnRepetitions, repetitions);
-                contentValues.Put(ColumnWeight, weight);
-                contentValues.Put(ColumnRestTime, restTime);
+                contentValues.Put(ColumnSetExerciseId, excersize.Excersize.Id);  // FixMe: Id is not connected to database excersize
+                contentValues.Put(ColumnRepetitions, excersize.Reps);
+                contentValues.Put(ColumnWeight, excersize.Weight);
+                contentValues.Put(ColumnSetTime, excersize.SetTime);
+                contentValues.Put(ColumnRestTime, excersize.RestTime);
 
-                db.Insert(TableExerciseSets, null, contentValues);
+                retVal =  db.Insert(TableExerciseSets, null, contentValues);
             }
+            return retVal;
         }
 
 
@@ -266,24 +275,30 @@ namespace Gym_Me
             }
         }
 
-        public List<ExerciseSet> GetExercisesForWorkout(int workoutId)
+        public List<Exercise> GetExercisesForWorkout(int workoutId)  // TODO: Maybe change Excersize:SetBase to ExersizeSet
         {
             using (var db = ReadableDatabase)
             {
                 string query = "SELECT * FROM ExerciseSets WHERE WorkoutId = ?";
                 var cursor = db.RawQuery(query, new string[] { workoutId.ToString() });
 
-                var exercises = new List<ExerciseSet>();
+                var exercises = new List<Exercise>();
                 while (cursor.MoveToNext())
                 {
-                    var exerciseSet = new ExerciseSet
+                    // Get excersize Id
+                    int exId = cursor.GetInt(cursor.GetColumnIndex(ColumnExerciseId));
+                    ExcersizeData exData = ExcersizeList.Instance.GetExcersizeData(exId);
+                    var exerciseSet = new Exercise
                     {
                         Id = cursor.GetInt(cursor.GetColumnIndex(ColumnExerciseSetId)),
-                        WorkoutId = cursor.GetInt(cursor.GetColumnIndex(ColumnSetWorkoutId)),
-                        ExerciseId = cursor.GetInt(cursor.GetColumnIndex(ColumnSetExerciseId)),
-                        Repetitions = cursor.GetInt(cursor.GetColumnIndex(ColumnRepetitions)),
+                        Description = "",
+                        Excersize = exData,
+                        Type ="",
+                        Reps = cursor.GetInt(cursor.GetColumnIndex(ColumnRepetitions)),
                         Weight = cursor.GetDouble(cursor.GetColumnIndex(ColumnWeight)),
-                        RestTime = cursor.GetInt(cursor.GetColumnIndex(ColumnRestTime))
+                        SetTime = cursor.GetDouble(cursor.GetColumnIndex(ColumnWeight)),
+                        RestTime = cursor.GetDouble(cursor.GetColumnIndex(ColumnRestTime)),
+                        
                     };
                     exercises.Add(exerciseSet);
                 }
@@ -351,6 +366,34 @@ namespace Gym_Me
             }
             return null; // Return null if no exercise found
         }
+
+        public bool ClearDatabase()
+        {
+            using (var db = WritableDatabase)
+            {
+                db.BeginTransaction();
+                try
+                {
+                    db.Delete(TableExerciseSets, null, null);
+                    db.Delete(TableExercises, null, null);
+                    db.Delete(TableWorkouts, null, null);
+                    db.Delete(TableUsers, null, null);
+
+                    db.SetTransactionSuccessful();
+                    return true; // ✅ Success
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("DatabaseHelper", $"Error clearing database: {ex.Message}");
+                    return false; // ❌ Something went wrong
+                }
+                finally
+                {
+                    db.EndTransaction();
+                }
+            }
+        }
+
 
         public Workout GetWorkoutById(int workoutId)
         {

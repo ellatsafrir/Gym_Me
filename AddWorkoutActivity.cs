@@ -1,5 +1,6 @@
 using Android.App;
 using Android.Content;
+using Android.Hardware.Lights;
 using Android.OS;
 using Android.Widget;
 using Newtonsoft.Json;
@@ -20,7 +21,7 @@ namespace Gym_Me
         private DatabaseHelper _databaseHelper;
         private bool isEditing = false;
         private string originalWorkoutName = "";
-        private List<string> setDetailsList = new List<string>();
+        private List<Exercise> setDetailsList = new List<Exercise>();
         private ArrayAdapter<string> adapter;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,7 +37,12 @@ namespace Gym_Me
             setsListView = FindViewById<ListView>(Resource.Id.setsListView);
 
             _databaseHelper = new DatabaseHelper(this);
-            adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, setDetailsList);
+            adapter = new ArrayAdapter<string>(
+                this, 
+                Android.Resource.Layout.SimpleListItem1,
+                setDetailsList.Select(set => set.ToString()).ToList()
+            );
+
             setsListView.Adapter = adapter;
 
             if (Intent.HasExtra("isEditing") && Intent.GetBooleanExtra("isEditing", false))
@@ -92,17 +98,18 @@ namespace Gym_Me
                         Exercise exercise = JsonConvert.DeserializeObject<Exercise>(exerciseJson);
 
                         // Format the set details using the Exercise object
-                        string setDetails = $"Exercise: {exercise.Excersize.Name} , Reps: {exercise.Reps}, Weight: {exercise.Weight}, Time: {exercise.SetTime}s, Rest: {exercise.RestTime}s";
+                        //string setDetails = $"Exercise: {exercise.Excersize.Name} , Reps: {exercise.Reps}, Weight: {exercise.Weight}, Time: {exercise.SetTime}s, Rest: {exercise.RestTime}s";
 
-                        Toast.MakeText(this, $"Received Set: {setDetails}", ToastLength.Short).Show();
+                        Toast.MakeText(this, $"Received Set: {exercise.Excersize}", ToastLength.Short).Show();
 
                         // Add the new set to the list
-                        setDetailsList.Add(setDetails);
+                        setDetailsList.Add(exercise);
 
                         // Refresh the ListView by adding to the adapter and notifying the change
                         RunOnUiThread(() =>
                         {
-                            adapter.Add(setDetails); // Add new set directly to the adapter
+                            adapter.Clear();
+                            adapter.AddAll(setDetailsList.Select(ex => ex.ToString()).ToList());
                             adapter.NotifyDataSetChanged(); // Notify that the data has changed
                             setsListView.RefreshDrawableState(); // Optional: extra refresh if needed
                         });
@@ -121,6 +128,7 @@ namespace Gym_Me
         {
             string workoutName = workoutNameEditText.Text.Trim();
 
+            // Verify and protect against invalid workout settings.
             if (string.IsNullOrEmpty(workoutName))
             {
                 Toast.MakeText(this, "Please enter a workout name.", ToastLength.Short).Show();
@@ -149,19 +157,14 @@ namespace Gym_Me
             }
 
             // Save ExerciseSets for this workout
-            foreach (var setDetails in setDetailsList)
+            foreach (var excersize in setDetailsList)
             {
-                string[] setData = setDetails.Split(',');
-                int reps = Convert.ToInt32(setData[1].Split(':')[1].Trim());
-                double weight = Convert.ToDouble(setData[2].Split(':')[1].Trim().Replace("kg", ""));
-                int restTime = Convert.ToInt32(setData[3].Split(':')[1].Trim().Replace("s", ""));
-
-                // Find corresponding exercise from CSV
-                string exerciseName = setData[0].Split(':')[1].Trim();
-                int exerciseId = _databaseHelper.GetExerciseIdByName(exerciseName);
-
                 // Save ExerciseSet
-                _databaseHelper.SaveExerciseSet((int)workoutId, exerciseId, reps, weight, restTime);
+
+                if (_databaseHelper.SaveExerciseSet((int)workoutId, excersize) < 0)
+                {
+                    Toast.MakeText(this, "Failed to save exersize sets", ToastLength.Short).Show();
+                }
             }
 
             Toast.MakeText(this, "Workout saved successfully!", ToastLength.Short).Show();

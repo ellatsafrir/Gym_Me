@@ -17,6 +17,7 @@ namespace Gym_Me
         private List<Workout> workoutList;
         private DatabaseHelper dbHelper;
         private Button history;
+        private Button clear;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -32,6 +33,7 @@ namespace Gym_Me
 
             history = FindViewById<Button>(Resource.Id.historyPage);
             workoutListView = FindViewById<ListView>(Resource.Id.workoutListView);
+            clear = FindViewById<Button>(Resource.Id.clearButton);
             var addWorkoutButton = FindViewById<Button>(Resource.Id.addWorkoutButton);
             dbHelper = new DatabaseHelper(this);
             LoadTodayWorkouts();
@@ -51,6 +53,19 @@ namespace Gym_Me
             workoutListView.ItemLongClick += (sender, e) =>
             {
                 ShowPopupMenu(e.Position);
+            };
+
+            clear.Click += (sender, e) => {
+                bool isCleared = dbHelper.ClearDatabase();
+
+                if (isCleared)
+                {
+                    Toast.MakeText(this, "Database cleared successfully!", ToastLength.Short).Show();
+                }
+                else
+                {
+                    Toast.MakeText(this, "Failed to clear database.", ToastLength.Short).Show();
+                }
             };
         }
 
@@ -116,7 +131,7 @@ namespace Gym_Me
                     foreach (var workout in workouts)
                     {
                         // Fetch exercises for each workout
-                        var exercises = dbHelper.GetExercisesForWorkout(workout.Id) ?? new List<ExerciseSet>();
+                        var exercises = dbHelper.GetExercisesForWorkout(workout.Id) ?? new List<Exercise>();
                         workout.Exercises = exercises;  // Set the exercises in the workout
 
                         // Log the exercises for debugging
@@ -140,7 +155,7 @@ namespace Gym_Me
         }
 
 
-
+        
 
         private bool IsUserLoggedIn()
         {
