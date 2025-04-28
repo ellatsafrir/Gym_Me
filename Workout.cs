@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Gym_Me
 {
-    [Table("Workout")]
+    [Table("Workouts")]
     public class Workout
     {
         [PrimaryKey, AutoIncrement]

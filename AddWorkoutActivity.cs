@@ -98,9 +98,8 @@ namespace Gym_Me
                         Exercise exercise = JsonConvert.DeserializeObject<Exercise>(exerciseJson);
 
                         // Format the set details using the Exercise object
-                        //string setDetails = $"Exercise: {exercise.Excersize.Name} , Reps: {exercise.Reps}, Weight: {exercise.Weight}, Time: {exercise.SetTime}s, Rest: {exercise.RestTime}s";
-
-                        Toast.MakeText(this, $"Received Set: {exercise.Excersize}", ToastLength.Short).Show();
+                        string setDetails = $"Exercise: {exercise}";
+                        Toast.MakeText(this, setDetails, ToastLength.Short).Show();
 
                         // Add the new set to the list
                         setDetailsList.Add(exercise);
@@ -147,9 +146,8 @@ namespace Gym_Me
                 Name = workoutName,
                 Date = selectedDate
             };
-
             // Insert workout into database
-            long workoutId = _databaseHelper.SaveWorkout(workout.Name, workout.Date);
+            long workoutId = _databaseHelper.SaveWorkout(workout);
             if (workoutId == -1)
             {
                 Toast.MakeText(this, "Failed to save workout.", ToastLength.Short).Show();
@@ -160,8 +158,8 @@ namespace Gym_Me
             foreach (var excersize in setDetailsList)
             {
                 // Save ExerciseSet
-
-                if (_databaseHelper.SaveExerciseSet((int)workoutId, excersize) < 0)
+                excersize.WorkoutId = (int)workoutId;
+                if (_databaseHelper.SaveExerciseSet(excersize) < 0)
                 {
                     Toast.MakeText(this, "Failed to save exersize sets", ToastLength.Short).Show();
                 }

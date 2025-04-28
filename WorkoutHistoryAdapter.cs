@@ -55,7 +55,7 @@ namespace Gym_Me
             var exerciseNames = new List<string>();
             foreach (var exerciseSet in exerciseSets)
             {
-                var exercise = dbHelper.GetExerciseById(exerciseSet.ExerciseId); // Assuming you have a method to get exercise details
+                var exercise = dbHelper.GetExerciseById(exerciseSet.ExcersizeId); // Assuming you have a method to get exercise details
                 exerciseNames.Add(exercise.Description);
             }
 

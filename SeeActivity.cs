@@ -16,10 +16,10 @@ public class SeeActivity : Activity
         SetContentView(Resource.Layout.See);
 
         _listView = FindViewById<ListView>(Resource.Id.seelistView);
-        _excersizeList = new ExcersizeList();
+        _excersizeList = ExcersizeList.Instance;
 
         // Load exercises from CSV
-        _excersizeList.LoadCsvFromAssets(this);
+        //_excersizeList.LoadCsvFromAssets(this);
 
         // Set the adapter to the ListView
         _adapter = new GymAdapter(this, _excersizeList.excersizes);

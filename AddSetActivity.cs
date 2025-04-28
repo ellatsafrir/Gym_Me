@@ -25,7 +25,7 @@ namespace Gym_Me
 
             // Load exercises from CSV
             excersizeList = ExcersizeList.Instance;
-            excersizeList.LoadCsvFromAssets(this);
+            //excersizeList.LoadCsvFromAssets(this);
 
             // References to UI elements
             exercisesListContainer = FindViewById<LinearLayout>(Resource.Id.exercisesListContainer);
@@ -58,8 +58,8 @@ namespace Gym_Me
                 {
                     excersize = new Exercise
                     {
-                        Excersize = excersizeList.GetExcersizeData(selectedExerciseName), // TODO: link to actual excersize
-                        Type = "Type",
+                        //Excersize = excersizeList.GetExcersizeData(selectedExerciseName), // TODO: link to actual excersize
+                        ExcersizeId = excersizeList.GetExcersizeData(selectedExerciseName).Id,
                         Reps = Convert.ToInt32(repsEditText.Text),
                         Weight = Convert.ToDouble(weightEditText.Text),
                         SetTime = Convert.ToDouble(timeEditText.Text),

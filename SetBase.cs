@@ -10,8 +10,8 @@ namespace Gym_Me
     [Serializable]
     public abstract class SetBase
     {
-        public ExcersizeData Excersize { get; set; }
-        public string Type { get; set; }
+        public int ExcersizeId {  get; set; }
+        public string Type { get; set; } = "Regular";
         public int Reps {  get; set; }
         public double Weight { get; set; } 
         public double SetTime {  get; set; }

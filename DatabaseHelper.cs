@@ -2,14 +2,26 @@
 using System.Collections.Generic;
 using Android.Content;
 using Android.Database.Sqlite;
+using Android.Telecom;
 using Android.Util;
+using Java.Sql;
+using SQLite;
 
 namespace Gym_Me
 {
     public class DatabaseHelper : SQLiteOpenHelper
     {
         private const string DatabaseName = "GymMe.db";
-        private const int DatabaseVersion = 4;
+        //string dbPath = Path.Combine(
+        //    System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal),
+        //    DatabaseName
+        //);
+        string dbPath = Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+            DatabaseName
+        );
+        // 
+        private const int DatabaseVersion = 8;
 
         // Table and Column names
         private const string TableUsers = "Users";
@@ -43,107 +55,53 @@ namespace Gym_Me
         public override void OnCreate(SQLiteDatabase db)
         {
             Log.Debug("DatabaseHelper", "Creating tables...");
-            string createUsersTable = $@"
-                CREATE TABLE {TableUsers} (
-                    {ColumnUserId} INTEGER PRIMARY KEY AUTOINCREMENT,
-                    {ColumnEmail} TEXT NOT NULL UNIQUE,
-                    {ColumnPassword} TEXT NOT NULL,
-                    {ColumnName} TEXT NOT NULL
-                );";
-
-            string createWorkoutsTable = $@"
-                CREATE TABLE {TableWorkouts} (
-                    {ColumnWorkoutId} INTEGER PRIMARY KEY AUTOINCREMENT,
-                    {ColumnWorkoutName} TEXT NOT NULL,
-                    {ColumnWorkoutDate} TEXT NOT NULL
-                );";
-
-            string createExercisesTable = $@"
-                CREATE TABLE {TableExercises} (
-                    {ColumnExerciseId} INTEGER PRIMARY KEY AUTOINCREMENT,
-                    {ColumnExerciseName} TEXT NOT NULL
-                );";
-
-            string createExerciseSetsTable = $@"
-                CREATE TABLE {TableExerciseSets} (
-                    {ColumnExerciseSetId} INTEGER PRIMARY KEY AUTOINCREMENT,
-                    {ColumnSetWorkoutId} INTEGER NOT NULL,
-                    {ColumnSetExerciseId} INTEGER NOT NULL,
-                    {ColumnRepetitions} INTEGER,
-                    {ColumnWeight} REAL,
-                    {ColumnSetTime} REAL,
-                    {ColumnRestTime} REAL,
-                    FOREIGN KEY ({ColumnSetWorkoutId}) REFERENCES {TableWorkouts}({ColumnWorkoutId}) ON DELETE CASCADE,
-                    FOREIGN KEY ({ColumnSetExerciseId}) REFERENCES {TableExercises}({ColumnExerciseId}) ON DELETE CASCADE
-                );";
-
-            db.ExecSQL(createUsersTable);
-            db.ExecSQL(createWorkoutsTable);
-            db.ExecSQL(createExercisesTable);
-            db.ExecSQL(createExerciseSetsTable);
+            using (var connection = new SQLiteConnection(dbPath))
+            {
+                connection.CreateTable<User>();
+                connection.CreateTable<Workout>();
+                connection.CreateTable<Exercise>();
+            }
         }
 
         public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
         {
             // Drop the old tables if they exist
-            db.ExecSQL($"DROP TABLE IF EXISTS {TableUsers}");
-            db.ExecSQL($"DROP TABLE IF EXISTS {TableWorkouts}");
-            db.ExecSQL($"DROP TABLE IF EXISTS {TableExercises}");
-            db.ExecSQL($"DROP TABLE IF EXISTS {TableExerciseSets}");
+            using (var connection = new SQLiteConnection(dbPath))
+            {
+                connection.DropTable<User>();
+                connection.DropTable<Workout>();
+                connection.DropTable<Exercise>();
+            }
 
             // Recreate the tables with the updated schema
             OnCreate(db);
         }
         public List<string> GetAllWorkouts()
         {
-            var workouts = new List<string>();
+            var workoutsDisp = new List<string>();
 
-            using (var db = this.ReadableDatabase)
+            using (var connection = new SQLiteConnection(dbPath))
             {
-                var cursor = db.Query(
-                    "Workouts",                                  // Table name
-                    new string[] { "Id", "Name", "Date" },       // Columns to select
-                    null,                                        // WHERE clause
-                    null,                                        // Selection args
-                    null,                                        // GROUP BY
-                    null,                                        // HAVING
-                    "Date DESC"                                  // ORDER BY (optional)
-                );
+                var workouts = connection.Table<Workout>()
+                    .OrderByDescending(w => w.Date)
+                    .ToList();
 
-                if (cursor.Count > 0)
+                foreach(var workout in workouts)
                 {
-                    while (cursor.MoveToNext())
+                    var exercises = GetExercisesForWorkout(workout.Id);
+                    string exerciseDetails = "";
+                    foreach (var exercise in exercises)
                     {
-                        int workoutId = cursor.GetInt(cursor.GetColumnIndex("Id"));
-                        string workoutName = cursor.GetString(cursor.GetColumnIndex("Name"));
-                        string workoutDate = cursor.GetString(cursor.GetColumnIndex("Date"));
-
-                        // Fetch exercises for the current workout
-                        var exercises = GetExercisesForWorkout(workoutId);
-                        string exerciseDetails = "";
-                        foreach (var exerciseSet in exercises)
-                        {
-                            exerciseDetails += exerciseSet.Excersize.Id + "\n";
-                        }
-                        //// Format the exercises list
-                        //string exerciseDetails = exercises.Count > 0
-                        //    ? string.Join(", ", exercises)
-                        //    : "No exercises found";
-
-                        // Combine name, date, and exercises
-                        string workoutDisplay = $"{workoutName} - {workoutDate}\nExercises: {exerciseDetails}";
-                        workouts.Add(workoutDisplay);
+                        //exerciseDetails += exerciseSet.ExcersizeId + "\n";
+                        exerciseDetails += exercise.ToString() + "\n";
                     }
+                    // Combine name, date, and exercises
+                    string workoutText = $"{workout.Name} - {workout.Date}\nExercises: {exerciseDetails}";
+                    workoutsDisp.Add(workoutText);
                 }
-
-                cursor.Close();
             }
-
-            return workouts;
+            return workoutsDisp;
         }
-
-
-
 
         // User Management
         public bool AddUser(string email, string password, string name)
@@ -216,15 +174,11 @@ namespace Gym_Me
 
 
         // Workout Management
-        public long SaveWorkout(string workoutName, DateTime date)
+        public long SaveWorkout(Workout workout)
         {
-            using (var db = WritableDatabase)
+            using (var db = new SQLiteConnection(dbPath))
             {
-                var contentValues = new ContentValues();
-                contentValues.Put(ColumnWorkoutName, workoutName);
-                contentValues.Put(ColumnWorkoutDate, date.ToString("yyyy-MM-dd"));
-
-                return db.Insert(TableWorkouts, null, contentValues);
+                return db.Insert(workout);
             }
         }
 
@@ -240,24 +194,13 @@ namespace Gym_Me
         }
 
         //public void SaveExerciseSet(int workoutId, int exerciseId, int repetitions, double weight, double restTime)
-        public long SaveExerciseSet(int workoutId, Exercise excersize)
+        public long SaveExerciseSet(Exercise excersize)
         {
-            long retVal;
-            using (var db = WritableDatabase)
+            using (var db = new SQLiteConnection(dbPath))
             {
-                var contentValues = new ContentValues();
-                contentValues.Put(ColumnSetWorkoutId, workoutId);
-                contentValues.Put(ColumnSetExerciseId, excersize.Excersize.Id);  // FixMe: Id is not connected to database excersize
-                contentValues.Put(ColumnRepetitions, excersize.Reps);
-                contentValues.Put(ColumnWeight, excersize.Weight);
-                contentValues.Put(ColumnSetTime, excersize.SetTime);
-                contentValues.Put(ColumnRestTime, excersize.RestTime);
-
-                retVal =  db.Insert(TableExerciseSets, null, contentValues);
+                return db.Insert(excersize);
             }
-            return retVal;
         }
-
 
         public int GetExerciseIdByName(string exerciseName)
         {
@@ -274,40 +217,17 @@ namespace Gym_Me
                 }
             }
         }
-
         public List<Exercise> GetExercisesForWorkout(int workoutId)  // TODO: Maybe change Excersize:SetBase to ExersizeSet
         {
-            using (var db = ReadableDatabase)
+            List<Exercise> exercises;
+            using (var connection = new SQLiteConnection(dbPath))
             {
-                string query = "SELECT * FROM ExerciseSets WHERE WorkoutId = ?";
-                var cursor = db.RawQuery(query, new string[] { workoutId.ToString() });
-
-                var exercises = new List<Exercise>();
-                while (cursor.MoveToNext())
-                {
-                    // Get excersize Id
-                    int exId = cursor.GetInt(cursor.GetColumnIndex(ColumnExerciseId));
-                    ExcersizeData exData = ExcersizeList.Instance.GetExcersizeData(exId);
-                    var exerciseSet = new Exercise
-                    {
-                        Id = cursor.GetInt(cursor.GetColumnIndex(ColumnExerciseSetId)),
-                        Description = "",
-                        Excersize = exData,
-                        Type ="",
-                        Reps = cursor.GetInt(cursor.GetColumnIndex(ColumnRepetitions)),
-                        Weight = cursor.GetDouble(cursor.GetColumnIndex(ColumnWeight)),
-                        SetTime = cursor.GetDouble(cursor.GetColumnIndex(ColumnWeight)),
-                        RestTime = cursor.GetDouble(cursor.GetColumnIndex(ColumnRestTime)),
-                        
-                    };
-                    exercises.Add(exerciseSet);
-                }
-                return exercises;
+                exercises = connection.Table<Exercise>()
+                    .Where(e => e.WorkoutId == workoutId)
+                    .ToList();
             }
+            return exercises;
         }
-
-
-
 
         public bool DeleteWorkout(int workoutId)
         {
@@ -393,7 +313,6 @@ namespace Gym_Me
                 }
             }
         }
-
 
         public Workout GetWorkoutById(int workoutId)
         {

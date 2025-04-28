@@ -137,7 +137,7 @@ namespace Gym_Me
                         // Log the exercises for debugging
                         foreach (var exercise in exercises)
                         {
-                            Log.Debug("ExerciseSets", $"ExerciseSet Id: {exercise.Id}, WorkoutId: {exercise.WorkoutId}, ExerciseId: {exercise.ExerciseId}, Reps: {exercise.Repetitions}, Weight: {exercise.Weight}, RestTime: {exercise.RestTime}");
+                            Log.Debug("ExerciseSets", $"ExerciseSet Id: {exercise.Id}, WorkoutId: {exercise.WorkoutId}, ExerciseId: {exercise.ExcersizeId}, Reps: {exercise.Reps}, Weight: {exercise.Weight}, RestTime: {exercise.RestTime}");
                         }
 
                         workoutList.Add(workout);

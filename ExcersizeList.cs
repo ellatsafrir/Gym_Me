@@ -66,7 +66,6 @@ namespace Gym_Me
                 Console.WriteLine($"Error reading CSV file: {ex.Message}");
             }
         }
-
         public ExcersizeData GetExcersizeData(string excersizeName)
         {
             ExcersizeData returnVal = null;
