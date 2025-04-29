@@ -13,6 +13,16 @@
         android:layout_gravity="center"
         android:padding="10dp"/>
 
+    <Button
+        android:id="@+id/backButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:layout_gravity="start" />
+
     <ListView
         android:id="@+id/workoutsListView"
         android:layout_width="match_parent"
@@ -20,4 +30,6 @@
         android:divider="@android:color/darker_gray"
         android:dividerHeight="0.5dp"
         android:padding="10dp"/>
+
+     
 </LinearLayout>

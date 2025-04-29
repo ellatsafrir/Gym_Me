@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gym_Me
 {
-    public class SuperSets : ExerciseSet
+    public class SuperSets : Exercise
     {
         public Exercise SecondExercise { get; set; } // Second exercise in the superset
     }

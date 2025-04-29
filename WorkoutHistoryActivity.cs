@@ -1,50 +1,81 @@
-using System;
-using System.Collections.Generic;
-using Android.App;
-using Android.OS;
-using Android.Views;
-using Android.Widget;
+using Android.Content;
 using Gym_Me;
 
-namespace Gym_Me
+[Activity(Label = "Workout History")]
+public class WorkoutHistoryActivity : Activity
 {
-    [Activity(Label = "Workout History")]
-    public class WorkoutHistoryActivity : Activity
+    private ListView workoutsListView;
+    private List<Workout> workouts;
+    private DatabaseHelper dbHelper;
+    private WorkoutHistoryAdapter adapter;
+    private Button back;
+
+    protected override void OnCreate(Bundle savedInstanceState)
     {
-        private ListView workoutsListView;
-        private List<string> workoutsList;
-        private DatabaseHelper dbHelper;
-        private ArrayAdapter<string> workoutsAdapter;
+        base.OnCreate(savedInstanceState);
+        SetContentView(Resource.Layout.activity_workout_history);
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        workoutsListView = FindViewById<ListView>(Resource.Id.workoutsListView);
+        back = FindViewById<Button>(Resource.Id.backButton2);
+        dbHelper = new DatabaseHelper(this);
+
+        back.Click += (s, e) =>
         {
-            base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_workout_history);
-
-            // Initialize views and database helper
-            workoutsListView = FindViewById<ListView>(Resource.Id.workoutsListView);
-            dbHelper = new DatabaseHelper(this);
-
-            // Get all workouts from the database
-            workoutsList = dbHelper.GetAllWorkouts();
-
-            // Set up the adapter for the ListView
-            workoutsAdapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, workoutsList);
-            workoutsListView.Adapter = workoutsAdapter;
-
-            // Set item click listener to show workout details or edit
-            workoutsListView.ItemClick += WorkoutsListView_ItemClick;
-        }
-
-        // Item click event to handle workout selection
-        private void WorkoutsListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
-        {
-            string selectedWorkoutName = workoutsList[e.Position];
-
-            // You can launch a new activity to show the workout details or edit it
-            var intent = new Android.Content.Intent(this, typeof(WorkoutHistoryAdapter));
-            intent.PutExtra("WorkoutName", selectedWorkoutName);
+            var intent = new Intent(this, typeof(MainActivity));
             StartActivity(intent);
-        }
+        };
+
+        LoadWorkouts();
+
+        //workoutsListView.ItemClick += WorkoutsListView_ItemClick;
+        workoutsListView.ItemLongClick += WorkoutsListView_ItemLongClick;
+
     }
+
+    private void LoadWorkouts()
+    {
+        workouts = dbHelper.GetAllWorkoutsWithDetails(); // Assume this returns List<Workout> with exercises populated
+        adapter = new WorkoutHistoryAdapter(this, workouts);
+        workoutsListView.Adapter = adapter;
+    }
+
+
+    private void WorkoutsListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+    {
+        var selectedWorkout = workouts[e.Position];
+
+        PopupMenu popup = new PopupMenu(this, workoutsListView.GetChildAt(e.Position));
+        popup.MenuInflater.Inflate(Resource.Menu.edit_popup_menu, popup.Menu);
+
+        popup.MenuItemClick += (s, args) =>
+        {
+            if (args.Item.ItemId == Resource.Id.menu_edit)
+            {
+                var editIntent = new Intent(this, typeof(AddWorkoutActivity));
+                editIntent.PutExtra("WorkoutId", selectedWorkout.Id);
+                StartActivity(editIntent);
+            }
+            else if (args.Item.ItemId == Resource.Id.menu_delete)
+            {
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.SetTitle("Delete Workout");
+                alert.SetMessage("Are you sure you want to delete this workout?");
+                alert.SetPositiveButton("Delete", (senderAlert, argsAlert) =>
+                {
+                    dbHelper.DeleteWorkout(selectedWorkout.Id);
+                    workouts.RemoveAt(e.Position);
+                    adapter.NotifyDataSetChanged();
+                    Toast.MakeText(this, "Workout deleted", ToastLength.Short).Show();
+                });
+                alert.SetNegativeButton("Cancel", (senderAlert, argsAlert) => { });
+                alert.Show();
+            }
+        };
+        popup.Show();
+    }
+
+    
 }
+
+
+

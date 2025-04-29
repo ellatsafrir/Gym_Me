@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gym_Me
 {
-    public class DropSet : ExerciseSet
+    public class DropSet : Exercise
     {
         public List<double> Weights { get; set; } = new List<double>(); // Sequence of weights
     }
