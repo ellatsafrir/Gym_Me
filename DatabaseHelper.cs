@@ -17,7 +17,7 @@ namespace Gym_Me
             DatabaseName
         );
         // 
-        private const int DatabaseVersion = 10;
+        private const int DatabaseVersion = 12;
 
         // Table and Column names
         private const string TableUsers = "Users";
@@ -46,11 +46,21 @@ namespace Gym_Me
 
         public DatabaseHelper(Context context)
             : base(context, DatabaseName, null, DatabaseVersion)
-        { }
+        {
+            using (var connection = new SQLiteConnection(dbPath))
+            {
+                CreateDB();
+            }
+        }
 
         public override void OnCreate(SQLiteDatabase db)
         {
             Log.Debug("DatabaseHelper", "Creating tables...");
+            CreateDB();
+        }
+
+        public void CreateDB()
+        {
             using (var connection = new SQLiteConnection(dbPath))
             {
                 connection.CreateTable<User>();
@@ -72,6 +82,7 @@ namespace Gym_Me
             // Recreate the tables with the updated schema
             OnCreate(db);
         }
+
         public List<string> GetAllWorkouts()
         {
             var workoutsDisp = new List<string>();
@@ -123,8 +134,6 @@ namespace Gym_Me
             }
         }
 
-
-
         public bool IsEmailRegistered(string email)
         {
             using (var connection = new SQLiteConnection(dbPath))
@@ -133,8 +142,6 @@ namespace Gym_Me
                     .Any(u => u.Email == email);
             }
         }
-
-
 
         public List<Workout> GetAllWorkoutsWithDetails()
         {
@@ -153,8 +160,6 @@ namespace Gym_Me
             }
         }
 
-
-
         public bool AuthenticateUser(string email, string password)
         {
             using (var connection = new SQLiteConnection(dbPath))
@@ -163,8 +168,6 @@ namespace Gym_Me
                     .Any(u => u.Email == email && u.Password == password);
             }
         }
-
-
 
         public int GetWorkoutIdByName(string workoutName)
         {
@@ -176,8 +179,6 @@ namespace Gym_Me
                 return workout?.Id ?? -1; // Return the WorkoutId or -1 if not found
             }
         }
-
-
 
         // Workout Management
         public long SaveWorkout(Workout workout)
@@ -267,27 +268,20 @@ namespace Gym_Me
 
         public bool ClearDatabase()
         {
-            using (var db = WritableDatabase)
+            using (var connection = new SQLiteConnection(dbPath))
             {
-                db.BeginTransaction();
                 try
                 {
-                    db.Delete(TableExerciseSets, null, null);
-                    db.Delete(TableExercises, null, null);
-                    db.Delete(TableWorkouts, null, null);
-                    db.Delete(TableUsers, null, null);
+                    connection.DropTable<User>();
+                    connection.DropTable<Workout>();
+                    connection.DropTable<Exercise>();
 
-                    db.SetTransactionSuccessful();
                     return true; // ✅ Success
                 }
                 catch (Exception ex)
                 {
                     Log.Error("DatabaseHelper", $"Error clearing database: {ex.Message}");
                     return false; // ❌ Something went wrong
-                }
-                finally
-                {
-                    db.EndTransaction();
                 }
             }
         }

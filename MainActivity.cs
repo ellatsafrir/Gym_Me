@@ -154,9 +154,6 @@ namespace Gym_Me
             }
         }
 
-
-        
-
         private bool IsUserLoggedIn()
         {
             var preferences = GetSharedPreferences("GymMePreferences", FileCreationMode.Private);

@@ -51,7 +51,6 @@ public class WorkoutAdapter : BaseAdapter<Workout>
             }
         };
 
-
         // Long press for popout menu
         view.LongClick += (sender, e) =>
         {
@@ -86,9 +85,6 @@ public class WorkoutAdapter : BaseAdapter<Workout>
 
             popup.Show();
         };
-
-
-
         return view;
     }
 

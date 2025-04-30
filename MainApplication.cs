@@ -10,6 +10,9 @@ namespace Gym_Me
         public MainApplication(IntPtr handle, JniHandleOwnership transer) : base(handle, transer) { }
         public override void OnCreate()
         {
+            // Check Database exist if not then create them
+
+
             base.OnCreate();
 
             // 🔥 Put your singleton or startup logic here
