@@ -81,6 +81,13 @@ public class WorkoutAdapter : BaseAdapter<Workout>
                     alert.SetNegativeButton("Cancel", (senderAlert, argsAlert) => { });
                     alert.Show();
                 }
+                else if (args.Item.ItemId == Resource.Id.menu_play)
+                {
+                    // Handle Play action (if relevant)
+                    var intent = new Intent(_context, typeof(WorkoutListActivity));  // Assuming you have this activity
+                    intent.PutExtra("WorkoutId", workout.Id);  // Pass workout ID to the next activity (if necessary)
+                    _context.StartActivity(intent);
+                }
             };
 
             popup.Show();

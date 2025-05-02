@@ -66,8 +66,26 @@ namespace Gym_Me
                 connection.CreateTable<User>();
                 connection.CreateTable<Workout>();
                 connection.CreateTable<Exercise>();
+                connection.CreateTable<WorkoutLog>();
+
             }
         }
+        public void InsertWorkoutLog(WorkoutLog log)
+        {
+            using (var db = new SQLiteConnection(dbPath))
+            {
+                db.Insert(log);
+            }
+        }
+
+        public List<WorkoutLog> GetLogsForWorkout(int workoutId)
+        {
+            using (var db = new SQLiteConnection(dbPath))
+            {
+                return db.Table<WorkoutLog>().Where(x => x.WorkoutId == workoutId).ToList();
+            }
+        }
+
 
         public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
         {
@@ -77,6 +95,7 @@ namespace Gym_Me
                 connection.DropTable<User>();
                 connection.DropTable<Workout>();
                 connection.DropTable<Exercise>();
+                connection.DropTable<WorkoutLog>();
             }
 
             // Recreate the tables with the updated schema

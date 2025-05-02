@@ -85,6 +85,17 @@ namespace Gym_Me
                 {
                     DeleteWorkout(selectedWorkout);
                 }
+                else if (args.Item.ItemId == Resource.Id.menu_play)
+                {
+                    // Open the workout details activity
+                    var intent = new Intent(this, typeof(WorkoutListActivity));
+
+                    // Optional: You can pass the workout details to the new activity
+                    intent.PutExtra("workoutTitle", selectedWorkout.Name);  // Assuming the workout has a Title property
+                    intent.PutExtra("workoutId", selectedWorkout.Id);        // Assuming you have an ID for each workout
+
+                    StartActivity(intent);
+                }
             };
             popupMenu.Show();
         }
