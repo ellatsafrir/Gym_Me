@@ -11,7 +11,7 @@ namespace Gym_Me
     [Activity(Label = "Workout Timer")]
     public class WorkoutTimerActivity : Activity
     {
-        TextView exerciseNameText, timerText, setCounterText, weightText, repsText;
+        TextView exerciseNameText, timerText, setCounterText, weightText, repsText, rest;
         Button nextSetButton, pauseButton, skipSetButton, startTimerButton;
 
         bool isPaused = false;
@@ -49,6 +49,7 @@ namespace Gym_Me
             skipSetButton = FindViewById<Button>(Resource.Id.skipSetButton);
             startTimerButton = FindViewById<Button>(Resource.Id.startTimerButton);
             buzzer = (Vibrator)GetSystemService(VibratorService);
+            rest = FindViewById<TextView>(Resource.Id.restText);
 
             // retrieve intent data
             workoutId = Intent.GetIntExtra("WorkoutId", -1);
@@ -102,6 +103,7 @@ namespace Gym_Me
         {
             audioPlaybackUtility.StopAudio();
             audioPlaybackUtility.StartPlaying(this, Resource.Raw.zambolino_go_on);
+            rest.Text = "";
             // disable start to prevent re?entry
             startTimerButton.Enabled = false;
 
@@ -187,6 +189,11 @@ namespace Gym_Me
             {
                 currentSet = 1;
                 exerciseIndex++;
+                if (exerciseIndex >= exercises.Count)
+                {
+                    FinishWorkout(); // <- You need to implement this method
+                    return;
+                }
             }
 
             // reset work timer
@@ -201,10 +208,10 @@ namespace Gym_Me
         void StartRestTimer()
         {
             audioPlaybackUtility.StopAudio();
-            audioPlaybackUtility.StartPlaying(this, Resource.Raw.dagored_wall_of_sound);
+            audioPlaybackUtility.StartPlaying(this, Resource.Raw.moavii_belong);
             long restMs = (long)(exercises[exerciseIndex].RestTime * 1000);
             startTimerButton.Enabled = false;
-            timerText.Text = "Rest";
+            rest.Text = "rest";
 
             countDown = new CountDownTimer(restMs, 1000)
             {

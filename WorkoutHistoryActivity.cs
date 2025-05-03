@@ -70,6 +70,13 @@ public class WorkoutHistoryActivity : Activity
                 alert.SetNegativeButton("Cancel", (senderAlert, argsAlert) => { });
                 alert.Show();
             }
+            else if (args.Item.ItemId == Resource.Id.menu_play)
+            {
+                // Handle Play action (if relevant)
+                var intent = new Intent(this, typeof(WorkoutListActivity));  // Assuming you have this activity
+                intent.PutExtra("WorkoutId", selectedWorkout.Id);  // Pass workout ID to the next activity (if necessary)
+                this.StartActivity(intent);
+            }
         };
         popup.Show();
     }

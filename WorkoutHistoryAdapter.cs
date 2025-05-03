@@ -37,30 +37,14 @@ namespace Gym_Me
             workoutNameTextView.Text = workout.Name;
             workoutDateTextView.Text = $"Date: {workout.Date.ToString("MMMM dd, yyyy")}";
 
-            // Fetch exercises for the current workout from the database
-            var exercises = GetExercisesForWorkout(workout.Id);
-            exercisesTextView.Text = $"Exercises: {exercises}";
+          
+            exercisesTextView.Text = string.Join("\n", workout.Exercises.Select(exercise =>
+
+                    $"Exercise: {exercise}"));
 
             return view;
         }
 
-        // Method to get exercises for a specific workout
-        private string GetExercisesForWorkout(int workoutId)
-        {
-            var exerciseSets = dbHelper.GetExercisesForWorkout(workoutId);
-            if (exerciseSets.Count == 0)
-            {
-                return "No exercises found";
-            }
-
-            var exerciseNames = new List<string>();
-            foreach (var exerciseSet in exerciseSets)
-            {
-                var exercise = dbHelper.GetExerciseById(exerciseSet.ExcersizeId); // Assuming you have a method to get exercise details
-                exerciseNames.Add(exercise.Description);
-            }
-
-            return string.Join(", ", exerciseNames);
-        }
+      
     }
 }

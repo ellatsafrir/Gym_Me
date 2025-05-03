@@ -17,7 +17,7 @@ namespace Gym_Me
         private List<Workout> workoutList;
         private DatabaseHelper dbHelper;
         private Button history;
-        private Button clear;
+        private Button infoMuscles;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -33,7 +33,7 @@ namespace Gym_Me
 
             history = FindViewById<Button>(Resource.Id.historyPage);
             workoutListView = FindViewById<ListView>(Resource.Id.workoutListView);
-            clear = FindViewById<Button>(Resource.Id.clearButton);
+            infoMuscles = FindViewById<Button>(Resource.Id.seeMusclesInfo);
             var addWorkoutButton = FindViewById<Button>(Resource.Id.addWorkoutButton);
             dbHelper = new DatabaseHelper(this);
             LoadTodayWorkouts();
@@ -55,17 +55,10 @@ namespace Gym_Me
                 ShowPopupMenu(e.Position);
             };
 
-            clear.Click += (sender, e) => {
-                bool isCleared = dbHelper.ClearDatabase();
-
-                if (isCleared)
-                {
-                    Toast.MakeText(this, "Database cleared successfully!", ToastLength.Short).Show();
-                }
-                else
-                {
-                    Toast.MakeText(this, "Failed to clear database.", ToastLength.Short).Show();
-                }
+            infoMuscles.Click += (sender, e) =>
+            {
+                Intent intent = new Intent(this, typeof(SeeActivity));
+                StartActivityForResult(intent, 1);
             };
         }
 
