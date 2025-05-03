@@ -18,11 +18,28 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp" />
 
+        <TextView
+            android:id="@+id/workoutDate"
+            android:text="Date: "
+            android:textSize="18sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <!-- ListView for displaying sets -->
+      <ListView
+            android:id="@+id/workoutSetListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:dividerHeight="8dp"
+            android:layout_marginTop="16dp"/>
+
+
         <Button
             android:id="@+id/saveSummaryButton"
             android:text="Save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="24dp" />
     </LinearLayout>
 </ScrollView>

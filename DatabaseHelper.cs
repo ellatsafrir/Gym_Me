@@ -66,7 +66,7 @@ namespace Gym_Me
                 connection.CreateTable<User>();
                 connection.CreateTable<Workout>();
                 connection.CreateTable<Exercise>();
-                connection.CreateTable<WorkoutLog>();
+                //connection.CreateTable<WorkoutLog>();
 
             }
         }
@@ -204,8 +204,9 @@ namespace Gym_Me
         {
             using (var db = new SQLiteConnection(dbPath))
             {
-                return db.Insert(workout);
+                db.Insert(workout);
             }
+            return workout.Id;
         }
 
         public long SaveExercise(string exerciseName)

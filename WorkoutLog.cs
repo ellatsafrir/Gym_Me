@@ -1,20 +1,30 @@
-﻿using SQLite;
-
+﻿using System;
+using System.Collections.Generic;
 
 namespace Gym_Me
 {
-
-    [Table("WorkoutLog")]
-    public class WorkoutLog
+    [Serializable] // Make the class serializable
+    public record WorkoutTimeLog
     {
-        [PrimaryKey, AutoIncrement]
+        public double SetTime { get; set; }
+        public double RestTime { get; set; }
+    }
+
+    [Serializable] // Make the class serializable
+    public record WorkoutSetLog
+    {
+        public int Id { get; set; }
+        public int ExerciseId { get; set; }
+        public WorkoutTimeLog Time { get; set; }
+        public int Reps { get; set; }
+    }
+
+    [Serializable] // Make the class serializable
+    public record WorkoutLog
+    {
         public int Id { get; set; }
         public int WorkoutId { get; set; }
-        public int ExerciseId { get; set; }
-        public int SetNumber { get; set; }
-        public double Weight { get; set; }
-        public int Reps { get; set; }
-        public bool Skipped { get; set; }
+        public List<WorkoutSetLog> Sets { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

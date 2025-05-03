@@ -26,6 +26,8 @@
     <None Remove="Resources\layout\SignUp.xml" />
     <None Remove="Resources\layout\workout_history_item.xml" />
     <None Remove="Resources\layout\workout_item.xml" />
+    <None Remove="Resources\layout\workout_log_item.xml" />
+    <None Remove="Resources\layout\workout_set_item.xml" />
     <None Remove="Resources\Menu\edit_popup_menu.xml" />
   </ItemGroup>
   <ItemGroup>

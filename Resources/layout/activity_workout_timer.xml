@@ -56,9 +56,32 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/startTimerButton"
+            android:text="Start Timer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
+
+        <Button
             android:id="@+id/nextSetButton"
             android:text="Next Set"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/pauseButton"
+            android:text="Pause"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/skipSetButton"
+            android:text="Skip Set"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
     </LinearLayout>
 </ScrollView>
