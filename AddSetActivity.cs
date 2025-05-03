@@ -34,6 +34,7 @@ namespace Gym_Me
             var timeEditText = FindViewById<EditText>(Resource.Id.timeSetEditText);
             var restEditText = FindViewById<EditText>(Resource.Id.restEditText);                       
             var saveSetButton = FindViewById<Button>(Resource.Id.saveSetButton);
+            var setsEditText = FindViewById<EditText>(Resource.Id.setsEditText);
             back = FindViewById<Button>(Resource.Id.backButton);
 
             back.Click += (s, e) =>
@@ -60,6 +61,7 @@ namespace Gym_Me
                     {
                         //Excersize = excersizeList.GetExcersizeData(selectedExerciseName), // TODO: link to actual excersize
                         ExcersizeId = excersizeList.GetExcersizeData(selectedExerciseName).Id,
+                        Sets = Convert.ToInt32(setsEditText.Text),
                         Reps = Convert.ToInt32(repsEditText.Text),
                         Weight = Convert.ToDouble(weightEditText.Text),
                         SetTime = Convert.ToDouble(timeEditText.Text),

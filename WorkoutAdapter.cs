@@ -43,7 +43,7 @@ public class WorkoutAdapter : BaseAdapter<Workout>
                 exercisesLayout.Visibility = Android.Views.ViewStates.Visible;
                 exercisesTextView.Text = string.Join("\n", workout.Exercises.Select(exercise =>
 
-                    $"\"Exercise: {exercise}"));
+                    $"Exercise: {exercise}"));
             }
             else
             {

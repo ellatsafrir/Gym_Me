@@ -14,7 +14,7 @@ namespace Gym_Me
 
         public override string ToString()
         {
-            return $"Name: {ExcersizeList.Instance.GetExcersizeData(ExcersizeId).Name}\nReps: {Reps}, Weight: {Weight}, SetTime: {SetTime}, RestTime: {RestTime}";
+            return $"Name: {ExcersizeList.Instance.GetExcersizeData(ExcersizeId).Name}\nSets: {Sets},Reps: {Reps}, Weight: {Weight}, SetTime: {SetTime}, RestTime: {RestTime}";
         }
     }
 }
