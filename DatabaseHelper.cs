@@ -17,7 +17,7 @@ namespace Gym_Me
             DatabaseName
         );
         // 
-        private const int DatabaseVersion = 12;
+        private const int DatabaseVersion = 13;
 
         // Table and Column names
         private const string TableUsers = "Users";
@@ -66,25 +66,25 @@ namespace Gym_Me
                 connection.CreateTable<User>();
                 connection.CreateTable<Workout>();
                 connection.CreateTable<Exercise>();
-                //connection.CreateTable<WorkoutLog>();
+                connection.CreateTable<WorkoutLogTable>();
+                connection.CreateTable<WorkoutSetLogTable>();
+            }
+        }
+        //public void InsertWorkoutLog(WorkoutLog log)
+        //{
+        //    using (var db = new SQLiteConnection(dbPath))
+        //    {
+        //        db.Insert(log);
+        //    }
+        //}
 
-            }
-        }
-        public void InsertWorkoutLog(WorkoutLog log)
-        {
-            using (var db = new SQLiteConnection(dbPath))
-            {
-                db.Insert(log);
-            }
-        }
-
-        public List<WorkoutLog> GetLogsForWorkout(int workoutId)
-        {
-            using (var db = new SQLiteConnection(dbPath))
-            {
-                return db.Table<WorkoutLog>().Where(x => x.WorkoutId == workoutId).ToList();
-            }
-        }
+        //public List<WorkoutLog> GetLogsForWorkout(int workoutId)
+        //{
+        //    using (var db = new SQLiteConnection(dbPath))
+        //    {
+        //        return db.Table<WorkoutLog>().Where(x => x.WorkoutId == workoutId).ToList();
+        //    }
+        //}
 
 
         public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
@@ -323,7 +323,74 @@ namespace Gym_Me
             }
         }
 
+        public int InsertWorkoutLog(WorkoutLog log)
+        {
+            using (var db = new SQLiteConnection(dbPath))
+            {
+                // Save WorkoutLog metadata
+                var workoutLogRow = new WorkoutLogTable
+                {
+                    WorkoutId = log.WorkoutId,
+                    Timestamp = log.Timestamp
+                };
 
+                db.Insert(workoutLogRow); // This populates workoutLogRow.Id
+
+                foreach (var set in log.Sets)
+                {
+                    var setLogRow = new WorkoutSetLogTable
+                    {
+                        WorkoutLogId = workoutLogRow.Id,
+                        ExerciseId = set.ExerciseId,
+                        Reps = set.Reps,
+                        SetTime = set.Time.SetTime,
+                        RestTime = set.Time.RestTime
+                    };
+
+                    db.Insert(setLogRow);
+                }
+
+                return workoutLogRow.Id; // Return the generated ID
+            }
+        }
+        public List<WorkoutLog> GetLogsForWorkout(int workoutId)
+        {
+            using (var db = new SQLiteConnection(dbPath))
+            {
+                var workoutLogs = db.Table<WorkoutLogTable>()
+                    .Where(x => x.WorkoutId == workoutId)
+                    .ToList();
+
+                var result = new List<WorkoutLog>();
+
+                foreach (var log in workoutLogs)
+                {
+                    var sets = db.Table<WorkoutSetLogTable>()
+                        .Where(x => x.WorkoutLogId == log.Id)
+                        .Select(s => new WorkoutSetLog
+                        {
+                            Id = s.Id,
+                            ExerciseId = s.ExerciseId,
+                            Reps = s.Reps,
+                            Time = new WorkoutTimeLog
+                            {
+                                SetTime = s.SetTime,
+                                RestTime = s.RestTime
+                            }
+                        }).ToList();
+
+                    result.Add(new WorkoutLog
+                    {
+                        Id = log.Id,
+                        WorkoutId = log.WorkoutId,
+                        Timestamp = log.Timestamp,
+                        Sets = sets
+                    });
+                }
+
+                return result;
+            }
+        }
 
     }
 }

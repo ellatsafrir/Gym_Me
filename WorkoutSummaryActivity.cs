@@ -13,6 +13,7 @@ namespace Gym_Me
     [Activity(Label = "Workout Summary")]
     public class WorkoutSummaryActivity : Activity
     {
+        Button save;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -30,6 +31,8 @@ namespace Gym_Me
 
             var container = FindViewById<LinearLayout>(Resource.Id.logContainer);
             var listView = FindViewById<ListView>(Resource.Id.workoutSetListView);
+            save = FindViewById<Button>(Resource.Id.saveSummaryButton);
+
 
             // Use the custom adapter
             //var adapter = new WorkoutSetAdapter(this, allSets);
@@ -75,7 +78,34 @@ namespace Gym_Me
             //}
 
             // Handle the save button click event
-            FindViewById<Button>(Resource.Id.saveSummaryButton).Click += (s, e) => Finish();
+            save.Click += (s, e) =>
+            {
+                // Log to ensure the button click event is triggered
+                Android.Util.Log.Debug("WorkoutSummaryActivity", "Save button clicked");
+
+                if (workoutLogs != null && workoutLogs.Count > 0)
+                {
+                    var dbHelper = new DatabaseHelper(this);
+
+                    foreach (var log in workoutLogs)
+                    {
+                        dbHelper.InsertWorkoutLog(log);  // Insert into DB
+                    }
+
+                    Toast.MakeText(this, "Workout saved!", ToastLength.Short).Show();
+                }
+                else
+                {
+                    Toast.MakeText(this, "No workout logs to save.", ToastLength.Short).Show();
+                }
+
+                // Return to MainActivity
+                var intent = new Intent(this, typeof(MainActivity));
+                intent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                StartActivity(intent);
+                Finish();
+            };
+
         }
     }
 }
