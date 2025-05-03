@@ -365,7 +365,7 @@ namespace Gym_Me
 
                 foreach (var log in workoutLogs)
                 {
-                    var sets = db.Table<WorkoutSetLogTable>()
+                    var sets = db.Table<WorkoutSetLogTable>() 
                         .Where(x => x.WorkoutLogId == log.Id)
                         .Select(s => new WorkoutSetLog
                         {
