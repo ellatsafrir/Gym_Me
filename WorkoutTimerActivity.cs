@@ -17,6 +17,8 @@ namespace Gym_Me
         bool isPaused = false;
         long remainingTime;
         Vibrator buzzer;
+        AudioPlaybackUtility audioPlaybackUtility;
+        
 
         // In?memory list to hold workout logs
         List<WorkoutLog> workoutLogs = new List<WorkoutLog>();
@@ -34,6 +36,8 @@ namespace Gym_Me
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_workout_timer);
 
+            // Create instance of audio playback Thread
+            audioPlaybackUtility = new AudioPlaybackUtility();
             // find views
             exerciseNameText = FindViewById<TextView>(Resource.Id.exerciseNameText);
             timerText = FindViewById<TextView>(Resource.Id.timerText);
@@ -73,6 +77,8 @@ namespace Gym_Me
 
         void LoadExercise()
         {
+            audioPlaybackUtility.StopAudio();
+
             if (exerciseIndex >= exercises.Count)
             {
                 FinishWorkout();
@@ -94,6 +100,8 @@ namespace Gym_Me
 
         void StartTimer()
         {
+            audioPlaybackUtility.StopAudio();
+            audioPlaybackUtility.StartPlaying(this, Resource.Raw.zambolino_go_on);
             // disable start to prevent re?entry
             startTimerButton.Enabled = false;
 
@@ -192,6 +200,8 @@ namespace Gym_Me
 
         void StartRestTimer()
         {
+            audioPlaybackUtility.StopAudio();
+            audioPlaybackUtility.StartPlaying(this, Resource.Raw.dagored_wall_of_sound);
             long restMs = (long)(exercises[exerciseIndex].RestTime * 1000);
             startTimerButton.Enabled = false;
             timerText.Text = "Rest";
@@ -214,6 +224,7 @@ namespace Gym_Me
 
         void FinishWorkout()
         {
+            audioPlaybackUtility.StopAudio();
             workoutLogs.Add(currentWorkoutLog);
             var intent = new Intent(this, typeof(WorkoutSummaryActivity));
             intent.PutExtra("WorkoutId", workoutId);
