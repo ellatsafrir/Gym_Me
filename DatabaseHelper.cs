@@ -70,21 +70,7 @@ namespace Gym_Me
                 connection.CreateTable<WorkoutSetLogTable>();
             }
         }
-        //public void InsertWorkoutLog(WorkoutLog log)
-        //{
-        //    using (var db = new SQLiteConnection(dbPath))
-        //    {
-        //        db.Insert(log);
-        //    }
-        //}
-
-        //public List<WorkoutLog> GetLogsForWorkout(int workoutId)
-        //{
-        //    using (var db = new SQLiteConnection(dbPath))
-        //    {
-        //        return db.Table<WorkoutLog>().Where(x => x.WorkoutId == workoutId).ToList();
-        //    }
-        //}
+       
 
 
         public override void OnUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)

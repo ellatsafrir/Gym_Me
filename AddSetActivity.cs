@@ -1,11 +1,4 @@
-using Android.App;
-using Android.OS;
-using Android.Widget;
-using Gym_Me;
-using System.Linq;
 using Android.Content;
-using Android.Graphics;
-using Android.Hardware.Lights;
 using Newtonsoft.Json;
 
 namespace Gym_Me

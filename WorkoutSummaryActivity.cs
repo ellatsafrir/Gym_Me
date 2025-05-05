@@ -1,12 +1,7 @@
-using Android.App;
+
 using Android.Content;
-using Android.OS;
-using Android.Widget;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Gym_Me
 {
@@ -34,10 +29,7 @@ namespace Gym_Me
             save = FindViewById<Button>(Resource.Id.saveSummaryButton);
 
 
-            // Use the custom adapter
-            //var adapter = new WorkoutSetAdapter(this, allSets);
-            //listView.Adapter = adapter;
-
+            
 
             // Retrieve the workout logs passed through the intent
             var json = Intent.GetStringExtra("WorkoutLogs");
@@ -49,33 +41,12 @@ namespace Gym_Me
                 container.AddView(noLogsText);
                 return;
             }
-            //List<string> logText = new List<string>();
-            //logText.Add($"[{workoutLog.Id}] WorkoutId:{workoutLog.WorkoutId}");
-            //foreach (var set in workoutLog.Sets)
-            //{
-            //    logText.Add(set.ToString());
-            //}
+           
 
             var adapter = new WorkoutLogAdapter(this, workoutLogs);
             listView.Adapter = adapter;
 
-            //// Group and display the logs
-            //foreach (var group in logs.GroupBy(l => l.Sets.FirstOrDefault()?.ExerciseId))
-            //{
-            //    var name = ExcersizeList.Instance.GetExcersizeData(group.Key?.ToString())?.Name ?? "Exercise";
-
-            //    // Build the log text, combining set data
-            //    var logText = $"{name}\n" + string.Join("\n", group.SelectMany(log => log.Sets)
-            //        .Select(set => $"Set {set.Id}: {set.Reps} Reps | Time: {set.Time.SetTime}s | Rest: {set.Time.RestTime}s"));
-
-            //    // Create and add a TextView for this log
-            //    var logView = new TextView(this)
-            //    {
-            //        Text = logText
-            //    };
-
-            //    container.AddView(logView);
-            //}
+           
 
             // Handle the save button click event
             save.Click += (s, e) =>

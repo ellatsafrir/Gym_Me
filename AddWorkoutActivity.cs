@@ -1,11 +1,6 @@
-using Android.App;
 using Android.Content;
-using Android.Hardware.Lights;
-using Android.OS;
-using Android.Widget;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+
 
 namespace Gym_Me
 {
@@ -166,7 +161,7 @@ namespace Gym_Me
             }
 
             Toast.MakeText(this, "Workout saved successfully!", ToastLength.Short).Show();
-
+            SetResult(Result.Ok);
             Finish();
         }
 
