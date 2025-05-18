@@ -59,14 +59,7 @@ public class WorkoutAdapter : BaseAdapter<Workout>
 
             popup.MenuItemClick += (s, args) =>
             {
-                if (args.Item.ItemId == Resource.Id.menu_edit)
-                {
-                    // Start edit workout activity
-                    var intent = new Intent(_context, typeof(AddWorkoutActivity));
-                    intent.PutExtra("WorkoutId", workout.Id);
-                    _context.StartActivity(intent);
-                }
-                else if (args.Item.ItemId == Resource.Id.menu_delete)
+                 if (args.Item.ItemId == Resource.Id.menu_delete)
                 {
                     // Confirm and delete workout
                     AlertDialog.Builder alert = new AlertDialog.Builder(_context);

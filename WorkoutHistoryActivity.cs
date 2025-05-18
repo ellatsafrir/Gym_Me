@@ -49,13 +49,7 @@ public class WorkoutHistoryActivity : Activity
 
         popup.MenuItemClick += (s, args) =>
         {
-            if (args.Item.ItemId == Resource.Id.menu_edit)
-            {
-                var editIntent = new Intent(this, typeof(AddWorkoutActivity));
-                editIntent.PutExtra("WorkoutId", selectedWorkout.Id);
-                StartActivity(editIntent);
-            }
-            else if (args.Item.ItemId == Resource.Id.menu_delete)
+             if (args.Item.ItemId == Resource.Id.menu_delete)
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 alert.SetTitle("Delete Workout");

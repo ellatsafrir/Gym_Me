@@ -12,7 +12,6 @@ namespace Gym_Me
         {
             // Check Database exist if not then create them
 
-
             base.OnCreate();
 
             // 🔥 Put your singleton or startup logic here

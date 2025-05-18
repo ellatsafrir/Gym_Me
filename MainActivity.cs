@@ -65,11 +65,7 @@ namespace Gym_Me
             popupMenu.MenuItemClick += (s, args) =>
             {
                 var selectedWorkout = workoutList[position];
-                if (args.Item.ItemId == Resource.Id.menu_edit)
-                {
-                    EditWorkout(selectedWorkout);
-                }
-                else if (args.Item.ItemId == Resource.Id.menu_delete)
+                 if (args.Item.ItemId == Resource.Id.menu_delete)
                 {
                     DeleteWorkout(selectedWorkout);
                 }
