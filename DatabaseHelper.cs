@@ -19,31 +19,7 @@ namespace Gym_Me
         // 
         private const int DatabaseVersion = 13;
 
-        // Table and Column names
-        private const string TableUsers = "Users";
-        private const string ColumnUserId = "Id";
-        private const string ColumnEmail = "Email";
-        private const string ColumnPassword = "Password";
-        private const string ColumnName = "Name";
-
-        private const string TableWorkouts = "Workouts";
-        private const string ColumnWorkoutId = "Id";
-        private const string ColumnWorkoutName = "Name";
-        private const string ColumnWorkoutDate = "Date";
-
-        private const string TableExercises = "Exercises";
-        private const string ColumnExerciseId = "Id";
-        private const string ColumnExerciseName = "Name";
-
-        private const string TableExerciseSets = "ExerciseSets";
-        private const string ColumnExerciseSetId = "Id";
-        private const string ColumnSetWorkoutId = "WorkoutId";
-        private const string ColumnSetExerciseId = "ExerciseId";
-        private const string ColumnRepetitions = "Repetitions";
-        private const string ColumnWeight = "Weight";
-        private const string ColumnSetTime = "SetTime";
-        private const string ColumnRestTime = "RestTime";
-
+      
         public DatabaseHelper(Context context)
             : base(context, DatabaseName, null, DatabaseVersion)
         {
@@ -195,16 +171,7 @@ namespace Gym_Me
             return workout.Id;
         }
 
-        public long SaveExercise(string exerciseName)
-        {
-            using (var db = WritableDatabase)
-            {
-                var contentValues = new ContentValues();
-                contentValues.Put(ColumnExerciseName, exerciseName);
-
-                return db.Insert(TableExercises, null, contentValues);
-            }
-        }
+        
 
         //public void SaveExerciseSet(int workoutId, int exerciseId, int repetitions, double weight, double restTime)
         public long SaveExerciseSet(Exercise excersize)
