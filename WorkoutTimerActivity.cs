@@ -76,8 +76,9 @@ namespace Gym_Me
 
         void LoadExercise()
         {
-            audioPlaybackUtility.StopAudio();
-
+            // Send a broadcast to stop audio instead of directly calling StopAudio()
+            var stopIntent = new Intent("com.example.ACTION_STOP_AUDIO");
+            SendBroadcast(stopIntent); // This triggers AudioStopReceiver
             if (exerciseIndex >= exercises.Count)
             {
                 FinishWorkout();
@@ -99,7 +100,9 @@ namespace Gym_Me
 
         void StartTimer()
         {
-            audioPlaybackUtility.StopAudio();
+            // Send a broadcast to stop audio instead of directly calling StopAudio()
+            var stopIntent = new Intent("com.example.ACTION_STOP_AUDIO");
+            SendBroadcast(stopIntent); // This triggers AudioStopReceiver
             audioPlaybackUtility.StartPlaying(this, Resource.Raw.zambolino_go_on);
             rest.Text = "";
             // disable start to prevent re?entry
@@ -205,7 +208,11 @@ namespace Gym_Me
 
         void StartRestTimer()
         {
-            audioPlaybackUtility.StopAudio();
+            //audioPlaybackUtility.StopAudio();
+            // Send a broadcast to stop audio instead of directly calling StopAudio()
+            var stopIntent = new Intent("com.example.ACTION_STOP_AUDIO");
+
+            SendBroadcast(stopIntent); // This triggers AudioStopReceiver
             audioPlaybackUtility.StartPlaying(this, Resource.Raw.moavii_belong);
             long restMs = (long)(exercises[exerciseIndex].RestTime * 1000);
             startTimerButton.Enabled = false;

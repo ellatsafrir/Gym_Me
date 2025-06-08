@@ -4,6 +4,7 @@ using Android.OS;
 
 namespace Gym_Me
 {
+    /**/
     public class AudioPlaybackUtility
     {
         private MediaPlayer _mediaPlayer;
@@ -96,7 +97,7 @@ namespace Gym_Me
             Android.App.Application.SynchronizationContext.Post(_ => action(), null);
         }
     }
-
+   /* מקבל הודעה של לעצור את ניגון המוזיקה*/
     public class AudioStopReceiver : BroadcastReceiver
     {
         private readonly AudioPlaybackUtility _audioPlaybackUtility;

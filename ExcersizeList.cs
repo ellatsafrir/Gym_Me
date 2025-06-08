@@ -19,19 +19,24 @@ namespace Gym_Me
     {
         private static ExcersizeList _instance;
         private static readonly object _lock = new object();
-        private ExcersizeList() { }
+        private ExcersizeList() { } // step 1: private constructure ensures that only this class can create itself
 
         public List<ExcersizeData> excersizes { get; private set; } = new List<ExcersizeData>();
 
+        // singelton design pattern: 
+        // its a concept of modles to solve common problems. 
+        // singletone ensures that only one instence is in the system 
+        
+        // getter property that can create the class and return it 
         public static ExcersizeList Instance
         {
             get 
             {
                 if (_instance == null)
                 {
-                    lock (_lock)
+                    lock (_lock) // to ensure that only one thread can use it at a time
                     {
-                        if (_instance == null)
+                        if (_instance == null) // could have changed during the lock 
                         {
                             _instance = new ExcersizeList();
                         }
@@ -46,16 +51,14 @@ namespace Gym_Me
             string fileName = "excersize.csv";
             try
             {
-                using (var stream = context.Assets.Open(fileName))
-                //using (var reader = new StreamReader(stream, Encoding.Unicode))
-                using (var reader = new StreamReader(stream, true))
-                //using (var reader = new StreamReader(stream))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                using (var stream = context.Assets.Open(fileName)) // open the file and basic operations
+                using (var reader = new StreamReader(stream, true))// stream reader. easier way to read the file
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture)) // parse stream into data
                 {
                     // Automatically maps CSV columns to the GymData class properties
-                    var records = csv.GetRecords<ExcersizeData>();
-                    this.excersizes = new List<ExcersizeData>(records);
-                    foreach (var record in records)
+                    var records = csv.GetRecords<ExcersizeData>(); // returns IEnumerable<ExcersizeData>, iterator
+                    this.excersizes = new List<ExcersizeData>(records); // Transforms this into a list
+                    foreach (var record in records) // for debug
                     {
                         Console.WriteLine( record.Name + record.Description + record.Muscles + record.VideoLink);
                     }

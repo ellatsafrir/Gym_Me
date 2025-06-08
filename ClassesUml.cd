@@ -8,7 +8,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Gym_Me.SetBase">
-    <Position X="8.25" Y="4" Width="1.5" />
+    <Position X="9" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>CBAAAAAAAAAAAAAAAAAADAAAADAAAAAAAQAAAAAAAAA=</HashCode>
       <FileName>SetBase.cs</FileName>
@@ -22,7 +22,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Gym_Me.Exercise">
-    <Position X="8.25" Y="0.75" Width="1.5" />
+    <Position X="9" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAICAAAAAAAgAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Exercise.cs</FileName>
@@ -52,7 +52,7 @@
   <Class Name="Gym_Me.DatabaseHelper">
     <Position X="0.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AACACCAANKAAACGAQIBEAYKoACQQEAGgAAIADYIhgAQ=</HashCode>
+      <HashCode>AACACCAAACAAACGAAAAEAICAACAQAAGgAAAABQAhAAQ=</HashCode>
       <FileName>DatabaseHelper.cs</FileName>
     </TypeIdentifier>
   </Class>

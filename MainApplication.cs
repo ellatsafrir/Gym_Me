@@ -5,6 +5,8 @@ using System;
 namespace Gym_Me
 {
     [Application]
+
+    // before everythings runs it creates this.
     public class MainApplication : Application
     {
         public MainApplication(IntPtr handle, JniHandleOwnership transer) : base(handle, transer) { }

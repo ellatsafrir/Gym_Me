@@ -52,7 +52,7 @@ namespace Gym_Me
                 {
                     excersize = new Exercise
                     {
-                        //Excersize = excersizeList.GetExcersizeData(selectedExerciseName), // TODO: link to actual excersize
+                        
                         ExcersizeId = excersizeList.GetExcersizeData(selectedExerciseName).Id,
                         Sets = Convert.ToInt32(setsEditText.Text),
                         Reps = Convert.ToInt32(repsEditText.Text),

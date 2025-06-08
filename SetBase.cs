@@ -1,6 +1,9 @@
 ﻿
 namespace Gym_Me
 {
+    /*Serializable ממיר לסטרינג ואחר כך ישנה את האופציה להמיר חזרה לעצם או למחלקה בשלמותו. 
+    בגלל שאני מעבירה מידע דרך intent וintent מעביר רק string
+    לכן יש צורך להשתמש בזה*/
     [Serializable]
     public abstract class SetBase
     {
